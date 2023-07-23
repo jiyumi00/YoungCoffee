@@ -7,29 +7,20 @@ import { THEME } from '../../constants/theme';
 // Components
 import Text from '../common/Text';
 
-// Styles
-const styles = StyleSheet.create({
-    detailsHeader: {
-        paddingVertical: 8,
-        paddingHorizontal: 25,
-        marginTop: 10,
-    },
-    detailsHeaderText: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: THEME.COLOR.GRAY_COLOR,
-    },
-});
+//Utils
+import { amountFormat } from '../../utils/AmountFormat';
 
+
+//시간 리스트와 주휴수당 리스트의 헤더(각 부분 총액 보여주기)
 export default class DetailsSectionHeader extends Component {
     constructor(props) {
         super(props);
-        this.employeeType = this.props.section;
     }
     render() {
         return (
             <View style={styles.detailsHeader}>
-                <Text style={styles.detailsHeaderText}>{this.employeeType}</Text>
+                <Text style={styles.detailsHeaderText}>{this.props.title}</Text> 
+                <Text style={[styles.detailsHeaderText,{marginRight:26}]}>{amountFormat(this.props.payTotal)}원</Text>
             </View>
 
         );
@@ -37,28 +28,18 @@ export default class DetailsSectionHeader extends Component {
 }
 
 
-// function DetailsSectionHeader({ section: { employeeType } }) {
-//     return (
-//         <View style={styles.detailsHeader}>
-//             <Text style={styles.detailsHeaderText}>{employeeType}</Text>
-//         </View>
-//     );
-// }
-// export default DetailsSectionHeader;
-
-// export default class DetailsSectionHeader extends Component {
-//     constructor(props) {
-//         super(props);
-//         this.state={
-//             section : this.state.employeeType,
-//             employeeType : this.props.employeeType
-//         }
-//     }
-//     render() {
-//         return (
-//             <View style={styles.detailsHeader}>
-//                 <Text style={styles.detailsHeaderText}>{employeeType}</Text>
-//             </View>
-//         );
-//     }
-// };
+// Styles
+const styles = StyleSheet.create({
+    detailsHeader: {
+        paddingVertical: 8,
+        paddingHorizontal: 25,
+        marginTop: 10,
+        flexDirection:'row',
+        justifyContent:'space-between'
+    },
+    detailsHeaderText: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: THEME.COLOR.GRAY_COLOR,
+    },
+});

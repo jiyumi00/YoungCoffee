@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import React, { Component } from 'react';
 
 // Constants
@@ -9,69 +9,96 @@ import { settlementState } from '../../constants/settlement';
 import Insets from '../../components/common/Insets';
 import CloseButton from '../../components/common/CloseButton';
 import DetailSectionHeader from '../../components/settlement/DetailSectionHeader';
-import DetailHistoryItem from '../../components/settlement/DetailHistoryItem';
+import DetailListItem from '../../components/settlement/DetailListItem';
 import Text from '../../components/common/Text';
+import Constant from '../../utils/constants';
+import WebServiceManager from '../../utils/webservice_manager';
+import DatePicker from 'react-native-date-picker';
 
 // utils
 import { monthFormat } from '../../utils/DateFormat';
+import dayjs from 'dayjs';
 
 
 /**
- * @title 정산 디테일 스크린
+ * @title 정산 디테일 스크린(해당 월을 선택했을 경우 상세페이지)
  * @description
- * - params로 받아온 값을 이용해 해당 월의 정산 내역 확인 (API 요청)
- * - 직원의 타입에 따라 구분하여 정보 확인 (SectionList 사용)
- * - 각 직원마다의 정산 히스토리를 토글로 확인 가능
- * - 상태가 마감전(1)일 경우에만 부분 수정이 가능
- * - 상여금, 급여, 보너스일 경우에만 값 변경 가능
- * - 상여금, 보너스일 경우에는 이전 금액을 확인하고 이후 변경할 금액을 입력하는 모달로 값 업데이트
- * - 아르바트의 급여를 변경할 경우에는 출근/퇴근 시간, 급여를 입력
- * - DatePicker에서 보여지는 값과 적용되는 값은 다른 State로 관리되고 있음 (확인을 누르면 적용되는 값에 보여지는 값 업데이트)
- * @returns
  */
 
 export default class SettlementDetail extends Component{
     constructor(props){
         super(props);
-        this.sampleData=[
-            {
-                employee:{
-                    id:1,
-                    name:"김태웅"
-                },
-            pay:10000,
-            times:[
-                {start:"10:00",end:"12:00"},
-                {start:"12:00",end:"14:00"}]
-            },
-            {
-                employee:{
-                    id:2,
-                    name:"김두한"
-                },
-            pay:20000,
-            times:[
-                {start:"14:00",end:"16:00"},
-                {start:"16:00",end:"18:00"}]
-            }];
 
-    }
+        this.userID='';
+        this.item = this.props.route.params.data;
+        this.payDay=dayjs();
 
-    onOpenModal = () => {
-        if (!this.state.selectedData) return;
-        switch (this.state.selectedData.employeeType) {
-            case '정직원':
-                this.props.navigation.navigate('BonusModify', { data: this.state.selectedData });
-                break;
-
-            case '아르바이트':
-                this.props.navigation.navigate('PayrollModal', { data: this.state.selectedData });
-                break;
+        this.state={
+            payDay:this.payDay,
+            contents:[],
+            isModifyModalVisible:false,
+            isDatePickerModalVisible:false
         }
     }
 
+    //정산완료된 데이터를 읽을것인지.. 미정산된 데이터를 읽을것인지 판단
+    //웹 서비스가 달라짐
+    componentDidMount() {
+        if(this.item.complete==1) {
+            Constant.getUserInfo().then((response)=> {
+                this.userID=response.userID;
+                this.callGetCompletedSettlementAPI().then((response)=> {
+                    console.log('completed settlement response = ',response);
+                    this.setState({contents:response});
+                });
+            });
+        }
+        else {
+            Constant.getUserInfo().then((response)=> {
+                this.userID=response.userID;
+                this.callGetSettlementAPI().then((response)=> {
+                    console.log('completed settlement response = ',response);
+                    this.setState({contents:response});
+                });
+            });
+        }
+    }    
+
+
+    onModifyListener=(item)=> {
+        console.log('modify in Detail',item);
+        this.props.navigation.navigate('ModifyWorkTimeModal', { data: item });
+    }
+
+    setCompleteButtonClicked=()=> {
+        console.log('마감 신청 버튼 클릭됨');
+        this.callSetCompleteAPI().then((response)=> {
+            console.log('마감신청한 결과 = ',response);
+            if(response.success>0) {
+                Alert.alert('마감신청','마감 신청이 성공적으로 등록되었습니다.');
+                this.props.navigation.goBack();
+            }
+            else {
+                Alert.alert('마감신청','마감신청이 실패하였습니다.');
+                this.props.navigation.goBack();
+            }
+
+        });
+        //this.setState({isDatePickerModalVisible:true});
+    }
+
+    onDatePickerModalClose=()=> {
+        this.setState({isDatePickerModalVisible:false});
+    }
+
+    onDatePickerSelectedListener = (value) => {
+        //this.setState({ date: value });
+        console.log('case date = ', value);
+    }
+
+
     render(){
-        const { date, complete } = this.props.route.params.data;
+        const { date, complete } = this.item;
         const year = date.split("-")[0];
         const month = date.split("-")[1];
         return(
@@ -93,22 +120,70 @@ export default class SettlementDetail extends Component{
                     <CloseButton />
                 </View>
 
-                {/* List */}
+                {/* 일한 아르바이트 직원 리스트 */}
                 <FlatList
-                    data={this.sampleData}
-                    renderItem={({item})=> <DetailHistoryItem item={item} key={item}/>}
+                    data={this.state.contents}
+                    renderItem={({item})=> <DetailListItem 
+                    item={item} 
+                    key={item} 
+                    complete={this.item.complete} 
+                    date={this.item.date} 
+                    onModifyListener={(item)=>this.onModifyListener(item)}/>}
                     />
 
-                {/* 마감 신청 버튼 - state가 1(마감전)일 경우 */}
+                {/* 마감 신청 버튼 - complete가 0(마감전)인 경우 마감신청 버튼 활성화 */}
                 {complete === 0 && (
-                    <TouchableOpacity style={styles.deadlineButton} activeOpacity={0.8}>
+                    <TouchableOpacity style={styles.deadlineButton} activeOpacity={0.8} onPress={this.setCompleteButtonClicked}>
                         <Text style={styles.deadlineButtonText}>마감 신청</Text>
                     </TouchableOpacity>
+                )}
+
+                {this.state.isDatePickerModalVisible && (
+                    <DatePicker
+                        defaultDate={new Date()}
+                        onSelectedListener={(value) => this.onDatePickerSelectedListener(value)}
+                        mode="date"
+                        onClose={this.onDatePickerModalClose}
+                    />
                 )}
             </Insets>
         </View>
         );
     }
+
+
+    //정산한 월에 대한 내역 가져옴(사람이름과 금액)
+    async callGetCompletedSettlementAPI() {
+        let manager = new WebServiceManager(Constant.serviceURL+"/GetCompletedSettlement?user_id="+this.userID+"&day="+this.item.date);
+        let response = await manager.start();
+        if (response.ok)
+            return response.json();
+        else
+            Promise.reject(response);
+    }
+
+
+    //아직 정산하지 않은 내역 가져옴(사람이름과 금액)
+    async callGetSettlementAPI() {
+        let manager = new WebServiceManager(Constant.serviceURL+"/GetSettlement?user_id="+this.userID+"&day="+this.item.date);
+        let response = await manager.start();
+        if (response.ok)
+            return response.json();
+        else
+            Promise.reject(response);
+    } 
+
+
+    //마감신청 버튼 클릭시
+    async callSetCompleteAPI() {
+        const payDay=dayjs(new Date()).format("YYYY-MM-DD");
+        let manager = new WebServiceManager(Constant.serviceURL+"/SetComplete?user_id="+this.userID+"&day="+this.item.date+"&pay_day="+payDay);
+        let response = await manager.start();
+        if (response.ok)
+            return response.json();
+        else
+            Promise.reject(response);
+    } 
 }
 
 

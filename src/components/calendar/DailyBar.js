@@ -16,6 +16,7 @@ export default class DailyBar extends Component {
             <View style={styles.container}>
                 <FlatList
                     data={this.props.data}
+                    keyExtractor={(item, index) => index.toString()}        //가급적 주도록 하자
                     renderItem={({ item, index }) => this.renderItem(item, index)}
                     style={{ flex: 1 }}
                     contentContainerStyle={{ flexGrow: 1 }} />

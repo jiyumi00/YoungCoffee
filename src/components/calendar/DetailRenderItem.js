@@ -6,6 +6,9 @@ import WeeklyBar from './WeeklyBar';
 import MonthlyBar from './MonthlyBar';
 import Text from '../common/Text';
 
+//Utils
+import { amountFormat } from '../../utils/AmountFormat';
+
 
 export default class DetailRenderItem extends Component {
     constructor(props) {
@@ -17,7 +20,7 @@ export default class DetailRenderItem extends Component {
 
     render() {
         const {id,name} = this.props.item.employee;
-        const {maxPay, minPay, time, total} =this.props.item;
+        const {maxPay, minPay, time, total, holidayPay} =this.props.item;
         const hourly = parseInt(time/60);
         const minute = time%60;
         return (
@@ -31,7 +34,7 @@ export default class DetailRenderItem extends Component {
                 <View style={styles.info}>
                     <View style={styles.infoItem}>
                         <Text style={styles.infoTitleText}>시급</Text>
-                        <Text style={styles.infoAmountText}>{minPay}~{maxPay}원</Text>
+                        <Text style={styles.infoAmountText}>{amountFormat(minPay)}~{amountFormat(maxPay)}원</Text>
                     </View>
                     <View style={styles.infoItem}>
                         <Text style={styles.infoTitleText}>시간</Text>
@@ -45,14 +48,14 @@ export default class DetailRenderItem extends Component {
                     <View style={styles.infoItem}>
                         <Text style={styles.infoTitleText}>주휴수당</Text>
                         <Text style={[styles.infoAmountText, styles.allowanceText]}>
-                            없음:원
+                            {amountFormat(holidayPay)}:원
                         </Text>
                     </View>
                     <View style={styles.infoItem}>
                         <Text style={styles.infoTitleText}>총 금액</Text>
                         <Text
                             style={[styles.infoAmountText, styles.totalAmountText]}>
-                            {total}원
+                            {amountFormat(total+holidayPay)}원
                         </Text>
                     </View>
                 </View>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import dayjs from 'dayjs';
 
 // Components
 import WebServiceManager from '../../utils/webservice_manager';
@@ -28,7 +29,10 @@ export default class ReportDetail extends Component {
         super(props);
         this.date = this.props.route.params.date;
         this.userID='';
-
+        this.WEEK_START= dayjs(this.date).startOf('week').add(1,'day').format('YYYY-MM-DD');
+        this.WEEK_END = dayjs(this.date).endOf('week').add(1,'day').format('MM-DD');
+        this.MONTH_START = dayjs(this.date).startOf('month').format('YYYY-MM-DD');
+        this.MONTH_END =dayjs(this.date).endOf('month').format('MM-DD');
         this.state={
             viewType:'일',
             modalVisible:false,
@@ -49,14 +53,17 @@ export default class ReportDetail extends Component {
        
     }
 
+    //일/주/월 버튼 터치시 (선택할 수 있는 모달창 팝업)
     changeViewType=()=> {
         this.setState({modalVisible:true});
     }
 
+    //일/주/월 선택 취소
     cancelButtonClicked=()=> {
         this.setState({modalVisible:false});
     }
 
+    //일/주/월을 선택한 경우
     okButtonClicked=(item)=> {
         this.setState({viewType:item,modalVisible:false,contents:[]},()=> {
             this.callGetReportAPI().then((response)=> {
@@ -66,6 +73,7 @@ export default class ReportDetail extends Component {
         });
     }
 
+    //일/주/월에 대한 API 호출
     async callGetReportAPI() {
         let manager;
         
@@ -74,7 +82,7 @@ export default class ReportDetail extends Component {
         else if(this.state.viewType=='주')
             manager = new WebServiceManager(Constant.serviceURL+"/GetWeeklyReport?user_id="+this.userID+"&day="+this.date);
         else 
-        manager = new WebServiceManager(Constant.serviceURL+"/GetMonthlyReport?user_id="+this.userID+"&day="+this.date);
+            manager = new WebServiceManager(Constant.serviceURL+"/GetMonthlyReport?user_id="+this.userID+"&day="+this.date);
 
         let response = await manager.start();
         if (response.ok)
@@ -108,9 +116,10 @@ export default class ReportDetail extends Component {
                                     <View style={styles.selectDateView}>
                                         {/* Selected Date */}
                                         <View style={styles.selectedDate}>
-                                            <Text style={styles.selectedDateText}>
-                                                {this.date}
-                                            </Text>
+                                            {this.state.viewType==='일'&& <Text style={styles.selectedDateText}>{this.date}</Text>}
+                                            {this.state.viewType==='주'&& <Text style={styles.selectedDateText}>{this.WEEK_START} ~ {this.WEEK_END}</Text>}
+                                            {this.state.viewType==='월'&& <Text style={styles.selectedDateText}>{this.MONTH_START} ~ {this.MONTH_END}</Text>}
+                                            
                                         </View>
     
                                         {/* Select Date Type */}

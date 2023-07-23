@@ -18,11 +18,15 @@ import ModifyPhoneModal from './ModifyPhoneModal';
 import ModifySalaryModal from './ModifySalaryModal';
 import ModifyActivationModal from './ModifyActivationModal';
 
-import { LogBox } from 'react-native';
+import Constant from '../../utils/constants';
+import WebServiceManager from '../../utils/webservice_manager';
 
-LogBox.ignoreLogs([
-  'Non-serializable values were found in the navigation state',
-]);
+// Utils
+import { amountFormat } from '../../utils/AmountFormat';
+
+import { LogBox } from 'react-native';
+import { shouldUseActivityState } from 'react-native-screens';
+
 
 // Images
 const DeleteIcon = require('../../assets/images/delete_icon/delete_icon.png');
@@ -32,45 +36,6 @@ const ModifyIcon = require('../../assets/images/modify_icon/modify_icon.png');
 //state:1 -> 지난 연봉/시급 
 //state:2 -> ??
 
-const BASE_DATA={
-    id:1,
-    name:'김가가',
-    phone:'01012345678',
-    inDate:'2023-06-01',
-    salary:4000,
-    isActivate:false
-}
-
-const DETAILS_DATA = [
-    {
-        id: 1,
-        state: 0,
-        amount: 9620,
-        startDate: 1686713163113,
-        endDate: null,
-    },
-    {
-        id: 3,
-        state: 1,
-        amount: 9700,
-        startDate: 1686713163113,
-        endDate: 1686723163113,
-    },
-    {
-        id: 4,
-        state: 1,
-        amount: 9500,
-        startDate: 1686713163113,
-        endDate: 1686723163113,
-    },
-    {
-        id: 5,
-        state: 2,
-        amount: 9000,
-        startDate: 1686713163113,
-        endDate: 1686723163113,
-    },
-];
 
 
 /**
@@ -84,6 +49,26 @@ const DETAILS_DATA = [
 export default class PartTimeDetail extends Component {
     constructor(props) {
         super(props);
+
+        this.state={
+            contents:{}
+        }
+    }
+
+    componentDidMount() {
+        this.callGetEmployeeDetailAPI().then((response)=> {
+            console.log('직원 상세 정보 response = ',response);
+            this.setState({contents:response});
+        })
+    }
+
+    async callGetEmployeeDetailAPI() {
+        let manager = new WebServiceManager(Constant.serviceURL+"/GetEmployeeDetail?employee_id="+this.props.route.params.employeeID);
+        let response = await manager.start();
+        if (response.ok)
+            return response.json();
+        else
+            Promise.reject(response);
     }
 
     render() {
@@ -95,8 +80,8 @@ export default class PartTimeDetail extends Component {
                         data={null}
                         style={styles.contents}
                         renderItem={null}
-                        ListHeaderComponent={()=><BaseInfo navigation={this.props.navigation}/>}
-                        ListFooterComponent={()=><AdditionalInfo/>}
+                        ListHeaderComponent={()=><BaseInfo navigation={this.props.navigation} item={this.state.contents}/>}
+                        ListFooterComponent={()=><AdditionalInfo pays={this.state.contents.pays}/>}
                     />
                 </Insets>
             </View>
@@ -112,9 +97,16 @@ class BaseInfo extends Component {
             phoneModalVisible:false,
             salaryModalVisible:false,
             activateModalVisible:false,
-            isActivate:BASE_DATA.isActivate
+            isActivate:false
         }
         
+    }
+
+    componentDidMount() {
+        if(this.props.item.validate==1)
+            this.setState({isActivate:true});
+        else
+            this.setState({isActivate:false});
     }
 
     editPhoneModal=()=> {
@@ -152,6 +144,7 @@ class BaseInfo extends Component {
     }
 
     render() {
+        const {name,cNumber,tel,startDate,pay} = this.props.item;
         return(<>
             {/* header */}
             <SettingHeader title='' />
@@ -163,12 +156,12 @@ class BaseInfo extends Component {
                 </View>                  
 
                 <View style={styles.userName}>
-                    <Text style={styles.userNameText}>{BASE_DATA.name}</Text>
+                    <Text style={styles.userNameText}>{name}</Text>
                 </View>
 
                 <View style={styles.idCardNumber}>
                     <Text style={styles.idCardNumberText}>
-                        961126-1234567
+                        {cNumber}
                     </Text>
                 </View>
             </View>
@@ -180,7 +173,7 @@ class BaseInfo extends Component {
                     value={
                         <>
                             <Text style={styles.valueText}>
-                                {BASE_DATA.phone}
+                                {tel}
                             </Text>
                             <Pressable
                                 style={styles.modifyButton}
@@ -197,7 +190,7 @@ class BaseInfo extends Component {
                 <UserInfoItemBox
                     label='입사일'
                     value={
-                        <Text style={styles.valueText}>{BASE_DATA.inDate}</Text>
+                        <Text style={styles.valueText}>{startDate}</Text>
                     }
                 />
 
@@ -205,7 +198,7 @@ class BaseInfo extends Component {
                     label='시급 (단위 원)'
                     value={
                         <>
-                            <Text style={styles.valueText}>{BASE_DATA.salary}</Text>
+                            <Text style={styles.valueText}>{amountFormat(pay)}</Text>
                             <Pressable
                                 style={styles.modifyButton}
                                 onPress={() =>this.editSalaryModal()}>
@@ -231,10 +224,10 @@ class BaseInfo extends Component {
             {/* 연락처/ 연봉또는 시급/ 활성화 상태 변경하는 모달 */}
             {/* 모달 뜨는 위치 확인 바람 */}
             {this.state.phoneModalVisible && (
-                <ModifyPhoneModal data={BASE_DATA.phone} okButtonListener={this.getPhoneNumber} cancelButtonListener={()=>this.cancelButtonListener({phoneModalVisible:false})}/>
+                <ModifyPhoneModal data={tel} okButtonListener={this.getPhoneNumber} cancelButtonListener={()=>this.cancelButtonListener({phoneModalVisible:false})}/>
             )}
             {this.state.salaryModalVisible && (
-                <ModifySalaryModal data={BASE_DATA.salary} title="시급" okButtonListener={this.getSalary} cancelButtonListener={()=>this.cancelButtonListener({salaryModalVisible:false})}/>
+                <ModifySalaryModal data={pay} title="시급" okButtonListener={this.getSalary} cancelButtonListener={()=>this.cancelButtonListener({salaryModalVisible:false})}/>
             )}
             {this.state.activateModalVisible && (
                 <ModifyActivationModal data={this.state.isActivate} okButtonListener={this.getActivate} cancelButtonListener={()=>this.cancelButtonListener({activateModalVisible:false})}/>
@@ -260,7 +253,7 @@ class AdditionalInfo extends Component {
                 </View>
 
                 <FlatList
-                    data={DETAILS_DATA}
+                    data={this.props.pays}
                     renderItem={({ item }) => this.renderItem(item)}
                     nestedScrollEnabled
                     ItemSeparatorComponent={Line}
@@ -270,68 +263,24 @@ class AdditionalInfo extends Component {
     }
 
     renderItem=(item)=> {
-        const date =
-        item.state === 0
-            ? `${dayjs(item.startDate).format(
-                    'YYYY-MM-DD',
-                )} ~`
-            : `${dayjs(item.startDate).format(
-                    'YYYY-MM-DD',
-                )} ~ ${dayjs(item.endDate).format(
-                    'YYYY-MM-DD',
-                )}`;
-
-        const disabledState = item.state === 2;
-
+        const endDate = item.endDate=='2100-12-31' ? "현재" : item.endDate;
         return (
             <View
-                style={[
-                    styles.detailItem,
-                    disabledState
-                        ? styles.disabledDetailItem
-                        : null,
-                ]}>
+                style={[styles.detailItem]}>
                 <View style={styles.detailItemHeader}>
                     <Text
-                        style={[
-                            styles.detailDate,
-                            disabledState
-                                ? styles.disabledText
-                                : null,
-                        ]}>
-                        {date}
+                        style={[styles.detailDate]}>
+                        {item.startDate} ~ {endDate}
                     </Text>
-                   {/*  {item.state === 0 ? (
-                        <>
-                            <Pressable>
-                                <Image source={DeleteIcon} style={styles.buttonIcon}/>
-                            </Pressable>
-
-                            <Pressable style={styles.modifyButton}>
-                                <Image source={ModifyIcon} style={styles.buttonIcon}/>
-                            </Pressable>
-                        </>
-                    ) : null} */}
                 </View>
 
                 <View style={styles.detailAmount}>
                     <Text
-                        style={[
-                            styles.amountText,
-                            disabledState
-                                ? styles.disabledText
-                                : null,
-                        ]}>
-                        {item.amount}
+                        style={[styles.amountText]}>
+                        {amountFormat(item.pay)}
                     </Text>
                     <Text
-                        style={[
-                            styles.unitText,
-                            disabledState
-                                ? styles.disabledText
-                                : null,
-                        ]}>
-                        원
+                        style={[ styles.unitText,]}> 원
                     </Text>
                 </View>
             </View>

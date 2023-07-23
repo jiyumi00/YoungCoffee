@@ -28,9 +28,11 @@ export default class Calendar extends Component {
             emptyListViewVisible: false
         }
     }
-   
-    componentDidMount() {
-       this.goWorkedList(); 
+    onRefresh = () => {
+        this.setState({ refreshing: true });
+        this.goWorkedList();
+        console.log('refreshing complete...') //refresing 할 api넣기
+        this.setState({ refreshing: false });
     }
 
     goWorkedList = () => {
@@ -42,6 +44,10 @@ export default class Calendar extends Component {
             });
         });
     }
+    componentDidMount() {
+        this.goWorkedList();
+    }
+
     async callGetWorkedListAPI(todate) {
         console.log('userID = ', this.userID);
         let manager = new WebServiceManager(Constant.serviceURL + "/GetWorkedList?user_id=" + this.userID + "&day=" + todate);
@@ -51,15 +57,7 @@ export default class Calendar extends Component {
         else
             Promise.reject(response);
     }
-   
 
-    
-    onRefresh = () => {
-        this.setState({ refreshing: true });
-        this.goWorkedList();
-        console.log('refreshing complete...') //refresing 할 api넣기
-        this.setState({ refreshing: false });
-    }
     onMonthChanged = (date) => {
         console.log('month changed', date);
         this.callGetWorkedListAPI(date.dateString).then((response) => {
@@ -84,10 +82,11 @@ export default class Calendar extends Component {
         const Header_Maximum_Height = ScreenHeight / 800;
         const Header_Minimum_Height = 0;
         return (
-            <SafeAreaView style={{ flex: 1 ,backgroundColor:'white'}}>
+            <SafeAreaView style={{ flex: 1 }}>
 
                 {this.state.emptyListViewVisible === false && <ScrollView
-                    contentContainerStyle={{ paddingTop: Header_Maximum_Height + Header_Minimum_Height }}
+                    
+                    contentContainerStyle={[ { paddingTop: Header_Maximum_Height + Header_Minimum_Height }]}
                     showsHorizontalScrollIndicator={false}
                     showsVerticalScrollIndicator={false}
                     refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}

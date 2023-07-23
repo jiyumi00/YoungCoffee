@@ -24,41 +24,52 @@ export default class CustomDay extends Component {
         //this.data=this.props.data;
         //this.disabled=this.props.state==='disabled';
         //this.today=this.props.state==='today';
-        this.saturday=week==='Sat';
-        this.sunday=week==="Sun";
+        this.saturday = week === 'Sat';
+        this.sunday = week === "Sun";
     }
 
-    //달력에서 해당 날짜 클릭시 (알바한 사람이 있을 경우만 이벤트 발생)
-    onPressDay=()=> {
-        if(this.props.data!=undefined)
+    //달력에서 해당 날짜 클릭시 (알바한 사람이 있을 경우만 이벤트 발생)(상위의 클래스에서 이벤트 발생)
+    onPressDay = () => {
+        if (this.props.data != undefined)
             this.props.onDateClickListener(this.props.date.dateString);
         //this.navigation.navigate('Daily', { state: date });
         //onPress(date);
     }
 
     //하나의 날짜에 표시될 항목(알바한 사람 이름)
-    listItem=(item,index)=> {
-        const {name} = item;
-        const color = CALENDAR_COLORS[index%3];
+    listItem = (item, index) => {
+        const { name } = item;
+        const color = CALENDAR_COLORS[index % 3];
         return (
-            <View
-                style={[styles.mark, { backgroundColor: color }]} key={name}>
-                <Text style={styles.markText}>{name}</Text>
-            </View>
+            <>
+                {
+                    index < 3 && <View
+                        style={[styles.mark, { backgroundColor: color }]} key={name}>
+                        <Text style={styles.markText}>{name}</Text>
+                    </View>
+                }
+                {
+                    index === 3 && <View
+                        style={[styles.mark,{height:10}]} key={name}>
+                        <Text style={{ color: 'black' }}>˙˙˙</Text>
+                    </View>
+                }
+            </>
+
         );
     }
 
     render() {
-       // console.log('date,',this.date)
+        // console.log('date,',this.date)
         //console.log('data',this.data)
         return (
-            <Pressable style={styles.dayButton} onPress={()=>this.onPressDay()}>
+            <Pressable style={styles.dayButton} onPress={() => this.onPressDay()}>
                 {/* Date */}
                 <View
                     style={[
                         styles.day,
-                        this.props.state==='today' ? styles.today : null,
-                        this.props.state==='disabled' ? styles.disabledButton : null,
+                        this.props.state === 'today' ? styles.today : null,
+                        this.props.state === 'disabled' ? styles.disabledButton : null,
                     ]}>
                     <Text
                         style={[
@@ -69,10 +80,10 @@ export default class CustomDay extends Component {
                         {this.props.date.day}
                     </Text>
                 </View>
-    
+
                 {/* Items */}
-                <View style={this.props.state==='disabled' ? { opacity: 0.6 } : null}>
-                    {this.props.data?.map((item,index) => this.listItem(item,index))}
+                <View style={this.props.state === 'disabled' ? { opacity: 0.6 } : null}>
+                    {this.props.data?.map((item, index) => this.listItem(item, index))}
                 </View>
             </Pressable>
         );
@@ -88,12 +99,10 @@ const CALENDAR_COLORS = ['#E868A0', '#295CC5', '#18ABA1'];
 const styles = StyleSheet.create({
     dayButton: {
         width: '100%',
-        height: 70,
+        minHeight: 80,
         borderColor: THEME.COLOR.LIGHT_GRAY,
         borderWidth: 0.5,
-        marginTop:-10,
-        marginBottom:-6.5,
-        backgroundColor:THEME.COLOR.WHITE_COLOR
+        marginBottom: -15
     },
     disabledButton: {
         opacity: 0.2,
@@ -102,7 +111,7 @@ const styles = StyleSheet.create({
         width: 15,
         height: 15,
         borderRadius: 8,
-        margin: 2,
+        margin: 3,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -119,7 +128,7 @@ const styles = StyleSheet.create({
         color: THEME.COLOR.BLUE_COLOR
     },
     sundayText: {
-        color:'#ff0000'
+        color: '#ff0000'
     },
     mark: {
         justifyContent: 'center',

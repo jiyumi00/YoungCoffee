@@ -42,8 +42,6 @@ export default class AddPartTimeModal extends Component {
         this.state = {
             activeMenu: 'time'
         }
-
-        console.log('naviagtion = ',this.props.navigation);
     }
 
     // 시간등록이냐 보너스 등록이냐... 선택
@@ -176,27 +174,25 @@ class TimeMenu extends Component {
         this.setState({amount:text})
     }
 
+
+
     onSubmit=()=>{
-        console.log('id = ',this.employee.id);
-        console.log('target',this.state.date);
-        console.log('startTime',this.state.startTime);
-        console.log('endTime',this.state.endTime);
-        console.log('amount',this.state.amount);
-        console.log('selectedKind',this.state.selectedKind);
         this.callAddDailyWorkAPI().then((response)=> {
             console.log('add daily work response = ',response);
             if(response.success==1) {
-                Alert.alert('시간등록','시간등록이 정상적으로 등록되었습니다.');
+                Alert.alert('시간등록',response.message);
                 this.props.navigation.goBack();
             }
             else {
-                Alert.alert('시간등록','시간등록에 실패하였습니다.');
+                Alert.alert('시간등록',response.message);
                 this.props.navigation.goBack();
             }
         });
      
     }
 
+
+    //{"employeeID":2,"startDate":"2023-07-13","startTime":"08:00","endTime":"15:00","pay":10000}
     async callAddDailyWorkAPI() {
         let manager = new WebServiceManager(Constant.serviceURL+"/AddDailyWork","post");
 
@@ -216,8 +212,17 @@ class TimeMenu extends Component {
             Promise.reject(response);
     }
 
-    render() {
-        console.log('modal render ',this.state.date);
+    render() {        
+        //DatePicker를 클렉시 현재 설정된 값으로 보여줌
+        let displayedDate=null;
+
+        if(this.state.selectedKind=='date')
+            displayedDate=this.state.date;
+        else if(this.state.selectedKind=='startTime')
+            displayedDate=this.state.startTime;
+        else
+            displayedDate=this.state.endTime;
+
         return (
             <View style={styles.timeAdd}>
                 <View style={styles.selectedUserName}>
@@ -239,7 +244,7 @@ class TimeMenu extends Component {
                         label='출근 시간'
                         input={
                             <TimeButton
-                                key={this.state.startTime}
+                                key={this.state.startTime}      //key값이 있으면 DateButton 클래스에서 didMount()다시 실행됨
                                 defaultTime={this.state.startTime}
                                 onPress={() => this.openDateTimeModal('startTime')}
                             />
@@ -278,7 +283,7 @@ class TimeMenu extends Component {
                 {/* Date Picker */}
                 {this.state.isVisible && (
                     <DatePicker
-                        defaultDate={new Date(this.state.date)}
+                        defaultDate={new Date(displayedDate)}
                         onSelectedListener={(value)=>this.onSelectedListener(value)}
                         mode={this.state.selectedKind=='startTime' || this.state.selectedKind=="endTime" ?'time':'date'}
                         onClose={this.onCloseModal}

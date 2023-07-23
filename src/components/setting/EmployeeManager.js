@@ -1,6 +1,6 @@
 import { extend } from 'dayjs';
 import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 
 import { THEME } from '../../constants/theme';
 // Components

@@ -37,6 +37,7 @@ export default class TimeButton extends Component {
     }
 
     render() {
+        console.log('Time Button re render===',this.state.defaultTime);
         return (
             <Pressable style={styles.input} onPress={this.onPress}>
                 <Text style={styles.inputText}>{this.state.defaultTime}</Text>

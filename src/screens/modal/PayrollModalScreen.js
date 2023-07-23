@@ -108,8 +108,8 @@ function PayrollModal({ navigation, route }) {
         setNewSum(onUpdateNumbersOnly(text));
 
     useEffect(() => {
-        setStartTime(data.startTime);
-        setEndTime(data.endTime);
+        setStartTime(data.start);
+        setEndTime(data.end);
     }, [data.startTime, data.endTime]);
 
     return (

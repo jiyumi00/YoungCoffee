@@ -1,5 +1,5 @@
 import React, { useCallback, Component } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View,BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Constants
@@ -18,7 +18,6 @@ const LogoutIcon = require('../../assets/images/logout/logout.png');
  * @title 관리 바로가기 목록
  * @returns
  */
-
 
 export const SETTINGS = [
     {
@@ -46,6 +45,10 @@ export default class SettingHome extends Component {
     logout=()=> {
         console.log('logout clicked...');
         AsyncStorage.clear();
+     
+       this.props.navigation.navigate('SignIn')
+    
+        //this.props.navigation.popToTop();
     }
 
     render() {
@@ -76,6 +79,7 @@ export default class SettingHome extends Component {
 
 }
 
+//전체관리의 메뉴항목
 class RenderItem extends Component {
     constructor(props) {
         super(props);

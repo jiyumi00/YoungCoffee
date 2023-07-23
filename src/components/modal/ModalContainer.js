@@ -7,6 +7,46 @@ import { SHADOW, THEME } from '../../constants/theme';
 // Components
 import Text from '../common/Text';
 
+
+export default class ModalContainer extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.buttons = this.props.buttons;
+    }
+
+    render() {
+        return (         
+                <Modal transparent={true}>
+                    <View style={styles.container}>
+                        <TouchableOpacity style={{flex:2}} onPress={this.props.onClose}/>
+                        <View style={styles.contents}>
+                            {/* Children */}
+                            {this.props.children}
+            
+                            {/* Button List */}
+                            <View style={styles.buttons}>
+                                {this.buttons?.map(button => (
+                                    <TouchableOpacity
+                                        key={button.id}
+                                        activeOpacity={0.8}
+                                        style={[styles.button, button.buttonStyle]}
+                                        onPress={button.onPress}>
+                                        <Text style={[styles.buttonText,button.buttonTextStyle]}>
+                                            {button.label}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>                        
+                        </View>
+                    </View>
+                </Modal>       
+        );
+    }
+}
+
+
 // Styles
 const styles = StyleSheet.create({
 
@@ -37,45 +77,3 @@ const styles = StyleSheet.create({
         color: THEME.COLOR.MAIN_COLOR,
     },
 });
-
-export default class ModalContainer extends Component {
-
-    constructor(props) {
-        super(props);
-
-        this.buttons = this.props.buttons;      
-        this.children = this.props.children;  
-    }
-
-    render() {
-        return (
-         
-                <Modal transparent={true}>
-                <View style={styles.container}>
-                    <TouchableOpacity style={{flex:2}} onPress={this.props.onClose}/>
-                    <View style={styles.contents}>
-                    {/* Children */}
-                    {this.children}
-    
-                    {/* Button List */}
-                    <View style={styles.buttons}>
-                        {this.buttons?.map(button => (
-                            <TouchableOpacity
-                                key={button.id}
-                                activeOpacity={0.8}
-                                style={[styles.button, button.buttonStyle]}
-                                onPress={button.onPress}>
-                                <Text style={[styles.buttonText,button.buttonTextStyle]}>
-                                    {button.label}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                    
-                </View>
-                </View>
-                </Modal>
-       
-        );
-    }
-}

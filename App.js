@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { Component } from "react";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer} from '@react-navigation/native';
 import RootNavigation from './src/navigation/RootNavigation';
 
-function App() {
-    return (
-        <SafeAreaProvider>
-            <NavigationContainer>
-                <RootNavigation />
-            </NavigationContainer>
-        </SafeAreaProvider>
-    );
+export default class App extends Component{
+    render(){
+        return (
+            <SafeAreaProvider>
+                <NavigationContainer >
+                
+                   <RootNavigation/>
+                </NavigationContainer>
+            </SafeAreaProvider>
+        );
+    }
+   
 }
 
-export default App;
+

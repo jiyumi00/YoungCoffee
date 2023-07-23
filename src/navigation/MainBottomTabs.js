@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Components
@@ -9,16 +9,17 @@ import SettingStack from './SettingStack';
 
 const Tab = createBottomTabNavigator();
 
-function MainBottomTabs() {
-    return (
-        <Tab.Navigator
-            tabBar={BottomTabBar}
-            screenOptions={{ headerShown: false }}>
-            <Tab.Screen name='Home' component={CalendarHome} />
-            <Tab.Screen name='SettlementHome' component={SettlementHome} />
-            <Tab.Screen name='Setting' component={SettingStack} />
-        </Tab.Navigator>
-    );
+ export default class MainBottomTabs extends Component {
+    render(){
+        return (
+            <Tab.Navigator
+                tabBar={BottomTabBar}
+                screenOptions={{ headerShown: false }}>
+                <Tab.Screen name='Home' component={CalendarHome} />
+                <Tab.Screen name='SettlementHome' component={SettlementHome} />
+                <Tab.Screen name='Setting' component={SettingStack} />
+            </Tab.Navigator>
+        );
+    }
+   
 }
-
-export default MainBottomTabs;

@@ -19,11 +19,14 @@ const CalendarIcon = require('../../assets/images/calendar/calendar.png');
 const LinkIcon = require('../../assets/images/link_icon/link_icon.png');
 
 
+//정산관리 홈
+//마감완료와 미정산 부분 구분하여 월 리스트 관리
 export default class SettlementHome extends Component {
     constructor(props) {
         super(props);
 
         this.state={
+            refresh:false,
             contents:[]
         }
     }
@@ -31,10 +34,7 @@ export default class SettlementHome extends Component {
     componentDidMount() {
         Constant.getUserInfo().then((response)=> {
             this.userID=response.userID;
-            this.callGetSettlementListAPI().then((response)=> {
-                console.log('settlement list = ',response);
-                this.setState({contents:response});
-            });
+            this.getSettlementList();
         });
     }
 
@@ -47,12 +47,19 @@ export default class SettlementHome extends Component {
             Promise.reject(response);
     }
 
-    goSettlementDetail = (item) => {
+    getSettlementList=()=> {
+        this.callGetSettlementListAPI().then((response)=> {
+            console.log('settlement list = ',response);
+            this.setState({contents:response});
+        });
+    }
+
+
+    //리스트의 항목을 클릭시 (월 별 상세페이지오 이동 data는 다음...
+    //SettlementDetail.js로 이동
+    //[{"complete": 0, "date": "2023-07"}, {"complete": 0, "date": "2023-06"}, {"complete": 1, "date": "2023-05"}]
+    goSettlementDetail = (item) => {        
         this.props.navigation.navigate('SettlementDetails', { data: item });
-        if(item.complete==0)
-            console.log('settlement detail clicked to 미정산');
-        else
-        console.log('settlement detail clicked to 정산완료');
     }
         
     render() {
@@ -70,10 +77,12 @@ export default class SettlementHome extends Component {
                         </Pressable>
                     </View>
 
-                    {/* Date List */}
+                    {/* 정산한 월, 미정산한 월 리스트 */}
                     <FlatList
                         style={homeStyles.list}
                         data={this.state.contents}
+                        refreshing={false}
+                        onRefresh={this.getSettlementList}
                         ItemSeparatorComponent={() => <View style={homeStyles.listSeparator} />}
                         renderItem={({ item }) => <ListItem item={item} onPress={() => this.goSettlementDetail(item)}/>}
                     />
@@ -84,6 +93,8 @@ export default class SettlementHome extends Component {
 }
 
 
+
+//월 리스트의 항목
 class ListItem extends Component {
     constructor(props) {
         super(props);
@@ -110,7 +121,7 @@ class ListItem extends Component {
 
 
 
-// renderStyles
+// homeStyles
 const homeStyles = StyleSheet.create({
     container: {
         flex: 1,
@@ -169,46 +180,3 @@ const renderStyles = StyleSheet.create({
         color: THEME.COLOR.VIOLET_COLOR,
     },
 });
-// function SettlementScreen({ navigation }) {
-//     const onPressGoToDetails = item =>
-//         navigation.navigate('SettlementDetails', {
-//             state: item,
-//         });
-
-//     return (
-//         <View style={homeStyles.container}>
-//             <Insets>
-//                 {/* Header - 이번 달 마감 날짜 표시 */}
-//                 <SettlementHeader />
-
-//                 {/* List 확인에 필요한 Date */}
-//                 <View style={homeStyles.selectedDate}>
-//                     <Pressable style={homeStyles.selectedDateButton}>
-//                         <Text style={homeStyles.selectedDateText}>
-//                             2023. 02 - 2023. 05
-//                         </Text>
-//                         <Image source={CalendarIcon} />
-//                     </Pressable>
-//                 </View>
-
-//                 {/* Date List */}
-//                 <FlatList
-//                     style={homeStyles.list}
-//                     data={TEST_SETTLEMENT_LIST}
-//                     keyExtractor={(_item, index) => index.toString()}
-//                     ItemSeparatorComponent={()=><View style={homeStyles.listSeparator} />}
-//                     renderItem={({ item }) => {
-//                         return (
-//                             <SettlementRenderItem
-//                                 item={item}
-//                                 onPress={() => onPressGoToDetails(item)}
-//                             />
-//                         );
-//                     }}
-//                 />
-//             </Insets>
-//         </View>
-//     );
-// }
-
-// export default SettlementScreen;

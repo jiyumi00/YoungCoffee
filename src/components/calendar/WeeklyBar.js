@@ -12,11 +12,14 @@ export default class WeeklyBar extends Component {
         this.amounts=this.props.data;
         this.boxSize=(100/this.weeks.length).toString().concat("%");
 
+        
+
         this.amountsMap = new Map();
         for(let i=0;i<this.amounts.length;i++) {
             const amount = this.amounts[i];
             const position = amount.position;
-            const amountObj = {amount:amount.amount,total:amount.total,startDate:amount.startDate}
+            const amountObj = {amount:amount.amount,total:amount.total,startDate:amount.startDate,thisWeek:amount.thisWeek};
+            //console.log("holidaypay+++",amountObj);
             this.amountsMap.set(position,amountObj);
         }
     }
@@ -47,20 +50,22 @@ export default class WeeklyBar extends Component {
         let amountObj=null;
         let hourly=null;
         let minute=null;
+        
         if(this.amountsMap.has(item)) {
             amountObj=this.amountsMap.get(item);
             hourly=parseInt(amountObj.amount/60);
             minute=amountObj.amount%60;
+            thisWeek=amountObj.thisWeek;
             exist=true;
         }
 
         return (
-            <View style={[{ width:this.boxSize,backgroundColor: barColor[index%3], height:40 }]} key={index}>
+            <View style={[thisWeek === 0?{opacity:0.4}:{backgroundColor:barColor[index%3]},{backgroundColor:barColor[index%3], width:this.boxSize, height:25,alignItems:'center',justifyContent:'center' }]} key={index}>
                 {exist && (
                    minute!=0 ? (
-                    <Text style={styles.boxesText}>{hourly}시간 {minute}분</Text>
+                    <Text style={styles.boxesText}>{hourly}:{minute}</Text>
                 ):(
-                    <Text style={styles.boxesText}>{hourly}시간</Text>
+                    <Text style={styles.boxesText}>{hourly}:00</Text>
                 )
                 )}               
             </View>
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
     },
     boxes: {
         width:'100%',
-        height: 25,
+        height: 20,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
@@ -96,7 +101,6 @@ const styles = StyleSheet.create({
     },
     boxesText: {
         color: THEME.COLOR.WHITE_COLOR,
-        height: 25,
         fontSize:12,
         textAlign: 'center'
     },

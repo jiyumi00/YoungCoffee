@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import React, { Component } from 'react';
 import { THEME } from '../../constants/theme';
+import { amountFormat } from '../../utils/AmountFormat';
 
 
 //근무한 시간량을 Bar형태로 보여주기
@@ -17,7 +18,7 @@ export default class MonthlyBar extends Component {
         for(let i=0;i<this.amounts.length;i++) {
             const amount = this.amounts[i];
             const position = amount.position;
-            const amountObj = {amount:amount.amount,total:amount.total,startDate:amount.startDate}
+            const amountObj = {amount:amount.amount,total:amount.total,startDate:amount.startDate,holidayPay:amount.holidayPay}
             this.amountsMap.set(position,amountObj);
         }
     }
@@ -52,16 +53,17 @@ export default class MonthlyBar extends Component {
             amountObj=this.amountsMap.get(item);
             hourly=parseInt(amountObj.amount/60);
             minute=amountObj.amount%60;
+            holidayPay=amountObj.holidayPay;
             exist=true;
         }
 
         return (
-            <View style={[{ width:this.boxSize,backgroundColor: barColor[index%3] }]} key={index}>
+            <View style={[{ width:this.boxSize,backgroundColor: barColor[index%3] ,height:40,alignItems:'center',justifyContent:'center'}]} key={index}>
                 {exist && (
                    minute!=0 ? (
-                    <Text style={styles.boxesText}>{hourly}시간 {minute}분</Text>
+                    <Text style={styles.boxesText}>{hourly}:{minute} {(holidayPay!=0)?("("+amountFormat(holidayPay)+")"):('')}</Text>
                 ):(
-                    <Text style={styles.boxesText}>{hourly}시간</Text>
+                    <Text style={styles.boxesText}>{hourly}:00 {(holidayPay!=0)?("("+amountFormat(holidayPay)+")"):('')}</Text>
                 )
                 )}               
             </View>
@@ -97,8 +99,8 @@ const styles = StyleSheet.create({
     },
     boxesText: {
         color: THEME.COLOR.WHITE_COLOR,
-        height: 25,
-        textAlign: 'center'
+        
+        textAlign: 'center',
     },
     timeText: {
         fontSize: 12

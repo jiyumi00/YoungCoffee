@@ -5,6 +5,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
+    Alert
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -29,8 +30,12 @@ export default class EmployeeHeader extends Component {
     }
 
     employeeKindClicked=(kind)=> {
-        this.setState({isFullTime:!this.state.isFullTime});
-        this.props.changeEmployeeKindListener(kind);
+        if(kind=="fullTime")
+            Alert.alert("직원관리","현재 정직원 관리는 사용할 수 없습니다");
+        else {
+            this.setState({isFullTime:!this.state.isFullTime});
+            this.props.changeEmployeeKindListener(kind);
+        }
     }
 
     addEmployee=()=> {

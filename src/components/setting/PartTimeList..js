@@ -11,6 +11,7 @@ import Text from '../common/Text';
 //Component
 import WebServiceManager from '../../utils/webservice_manager';
 import Constant from '../../utils/constants';
+import UserInfoItemBox from './UserInfoItemBox';
 
 // Images
 const LinkIcon = require('../../assets/images/link_icon/link_icon.png');
@@ -48,38 +49,36 @@ const PART_DATA = [
 ];
 
 export default class PartTimeList extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
-        this.userID='';
+        this.userID = '';
 
-        this.state={
-            contents:[]
+        this.state = {
+            contents: []
         }
-    }    
+    }
 
     componentDidMount() {
-        Constant.getUserInfo().then((response)=> {
-            this.userID=response.userID;
-            this.callGetDailyEmployeesAPI().then((response)=> {
-                console.log('daily employees = ',response);
-                this.setState({contents:response});
-            })
+        Constant.getUserInfo().then((response) => {
+            this.userID = response.userID;
+            this.getDailyEmployees();
         })
     }
 
-    detailEmployee=(item)=> {
-        console.log('detail Employee View');
-        this.props.navigation.navigate('PartTimeDetail');
-        /*
-        this.props.navigation.navigate('EmployeeDetail', {
-            userID: item.id,
-            employeeType: 'partTime'
-        });*/
+    //직원 상세보기 
+    goEmployeeDetail = (item) => {
+        this.props.navigation.navigate('PartTimeDetail', { employeeID: item.id });
+    }
+
+    getDailyEmployees = () => {
+        this.callGetDailyEmployeesAPI().then((response) => {
+            this.setState({ contents: response });
+        });
     }
 
     async callGetDailyEmployeesAPI() {
-        console.log('userID = ',this.userID);
-        let manager = new WebServiceManager(Constant.serviceURL+"/GetDailyEmployees?user_id="+this.userID);
+        console.log('userID = ', this.userID);
+        let manager = new WebServiceManager(Constant.serviceURL + "/GetDailyEmployees?user_id=" + this.userID);
         let response = await manager.start();
         if (response.ok)
             return response.json();
@@ -88,29 +87,32 @@ export default class PartTimeList extends Component {
     }
 
     render() {
-        return(
+        return (
             <FlatList
                 contentContainerStyle={{ flexGrow: 1 }}
                 data={this.state.contents}
-                renderItem={({item})=>this.renderItem(item)}
+                refreshing={false}
+                onRefresh={this.getDailyEmployees}
+                renderItem={({ item }) => this.renderItem(item)}
                 ItemSeparatorComponent={<View style={styles.separator} />}
                 ListFooterComponent={<View style={styles.separator} />}
             />
         );
     }
 
-   
-    renderItem=(item)=> {
+
+    renderItem = (item) => {
         //const date = dayjs(item.createdAt).format('YYYY. MM. DD');
         //const annualIncome = fullTimeEmployee ? item.annualIncome : amountFormat(item.annualIncome);
         return (
-            <Pressable style={styles.employee} onPress={()=>this.detailEmployee(item)}>
+
+            <Pressable style={[styles.employee]} onPress={() => this.goEmployeeDetail(item)}>
                 {/* Left Contents - 이름 */}
                 <View style={styles.employeeName}>
                     <Text
                         style={[
-                            styles.employeeNameText, 
-                            !item.active ? styles.deactivationText : null,
+                            styles.employeeNameText,
+                            !item.active ? styles.deactivationText : null, item.validate === 1 && { color: 'black' }
                         ]}>
                         {item.name}
                     </Text>
@@ -121,18 +123,18 @@ export default class PartTimeList extends Component {
             - 입사일, 연봉
             - 활성화된 직원일 경우에만 정보 표시
              */}
-             
+
                 {/*{item.active && ( */}
                 {true && (
                     <View style={styles.employeeInfo}>
                         <View style={styles.createdAt}>
-                            <Text style={styles.employeeInfoText}>
+                            <Text style={[styles.employeeInfoText, item.validate === 1 && { color: 'black' }]}>
                                 {item.startDate}
                             </Text>
                         </View>
-                        <View style={styles.line} />
+                        <View style={[styles.line]} />
                         <View style={styles.annualIncome}>
-                            <Text style={styles.employeeInfoText}>
+                            <Text style={[styles.employeeInfoText, item.validate === 1 && { color: 'black' }]}>
                                 {item.pay}원
                             </Text>
                         </View>
@@ -140,7 +142,7 @@ export default class PartTimeList extends Component {
                 )}
             </Pressable>
         );
-    }   
+    }
 }
 
 

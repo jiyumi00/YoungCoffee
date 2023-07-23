@@ -67,8 +67,8 @@ export default class Login extends Component {
             }
             else if(response.userID!=0) {
                 AsyncStorage.setItem('userInfo',JSON.stringify(response));
-
-                //this.props.navigation.navigate('MainTab');
+                //this.props.navigation.navigate('AddEmployee');
+                this.props.navigation.navigate('MainTab',{screen:'Home'});
             }
             //최초로그인일 경우 패스워드 변경화면으로 이동(이동하고 패스워드 수정후의 액션 문제때문에 다음으로 미룸)
             /*
