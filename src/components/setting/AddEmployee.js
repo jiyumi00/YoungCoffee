@@ -22,6 +22,7 @@ import WebServiceManager from '../../utils/webservice_manager';
 
 // Utils
 import { numberKeyboardType, onUpdateNumbersOnly } from '../../utils/keyboard';
+import { amountFormat } from '../../utils/AmountFormat';
 
 
 
@@ -45,7 +46,7 @@ export default class AddEmployee extends Component {
         this.state = {
             employeeType: 'partTime',
             isFullTime: false,
-            confirmValues: true,
+            isValidForm: false,
             bonusToggle: false,
             tiredToggle: false,
 
@@ -55,9 +56,27 @@ export default class AddEmployee extends Component {
             name:'',
             cNumber:'',
             tel:'',
-            pay:0
+            pay:0,
+            displayedPay:amountFormat(0),
+            foreigner:false
         }
     }
+
+   //폼 유효성 검사
+   onValidForm=(value)=> {
+    this.setState(value,()=> {
+        let isValidForm = true;
+        if(this.state.name.trim().length==0)
+            isValidForm=false;
+        if(this.state.cNumber.trim().replaceAll("-","").length<13)
+            isValidForm=false;
+        if(this.state.tel.trim().replaceAll("-","").length<11)
+            isValidForm=false;
+        if(this.state.pay<=0 || this.state.displayedPay.trim().length==0 || isNaN(this.state.pay))
+            isValidForm=false;
+        this.setState({isValidForm:isValidForm});
+    });
+}
     //date하나밖에 없기때문에 바로 this.state.date에다가 넣음
     onSelectedListener = (value) => {
         this.setState({ date: value });
@@ -73,7 +92,6 @@ export default class AddEmployee extends Component {
     }
 
     registerButtonClicked() {
-        console.log('아르바이트 직원을 등록합니다.');
         Constant.getUserInfo().then((response)=> {
             this.userID=response.userID;
             this.callAddDailyEmployeeAPI().then((response)=> {
@@ -105,19 +123,30 @@ export default class AddEmployee extends Component {
         }
     }
 
-    //{"userID":2,"name":"이순신","tel":"01077778888","cNumber":"0112313845678","startDate":"2023-07-01","pay":9620}
+    //금액의 숫자를 , 를 넣은 문자열로 변환
+    numberToString=()=> {
+        this.setState({displayedPay:amountFormat(this.state.pay)});
+    }
+
+    //,가 있는 금액을 숫자로 변환
+    stringToNumber=()=> {
+        this.setState({displayedPay:this.state.pay});
+    }
+
+
+    //{"userID":2,"name":"이순신","tel":"01077778888","cNumber":"0112313845678","startDate":"2023-07-01","pay":9620,"foreigner":0}
     async callAddDailyEmployeeAPI() {
         let manager = new WebServiceManager(Constant.serviceURL+"/AddDailyEmployee","post");
 
         const formData={
             userID:this.userID,
             name:this.state.name,
-            tel:this.state.tel,
-            cNumber:this.state.cNumber,
+            tel:this.state.tel.replaceAll("-",""),
+            cNumber:this.state.cNumber.replaceAll("-",""),
             startDate:dayjs(this.state.date).format("YYYY-MM-DD"),
-            pay:parseInt(this.state.pay)};
-
-        console.log('직원 등록 form Data = ',formData);
+            pay:parseInt(this.state.pay),
+            foreigner:this.state.foreigner?1:0
+        };
             
         manager.addFormData("data",formData);
         
@@ -159,18 +188,18 @@ export default class AddEmployee extends Component {
                             label='이름'
                             input={<Input placeholder='이름을 입력해주세요.' 
                                         value={this.state.name}
-                                        onChangeText={(text) => this.setState({name:text})}/>} />
+                                        onChangeText={(text) => this.onValidForm({name:text})}/>} />
                         <InputBox
                             label='주민등록번호'
                                 input={<Input placeholder='주민등록번호를 입력해주세요.' 
-                                        value={this.state.cNumber}
-                                        onChangeText={(text) => this.setState({cNumber:text})}
+                                        value={Constant.transformCNumber(this.state.cNumber)}
+                                        onChangeText={(text) => this.onValidForm({cNumber:text})}
                                         keyboardType={numberKeyboardType}/>} />
                         <InputBox
                             label='연락처'
                             input={<Input placeholder='연락처를 입력해주세요.' 
-                                        value={this.state.tel}
-                                        onChangeText={(text) => this.setState({tel:text})}
+                                        value={Constant.transformPhoneNumber(this.state.tel)}
+                                        onChangeText={(text) => this.onValidForm({tel:text})}
                                         keyboardType={numberKeyboardType}/>} />
                         <InputBox
                             label='입사일'
@@ -187,10 +216,30 @@ export default class AddEmployee extends Component {
                             input={<Input
                                     placeholder={`${this.state.isFullTime ? '연봉' : '시급'
                                         }을 입력해주세요.`} 
-                                    value={this.state.pay.toString()}
-                                    onChangeText={(text) => this.setState({pay:text})}
+                                    value={this.state.displayedPay.toString()}
+                                    onChangeText={(value) => this.onValidForm({pay:parseInt(value),displayedPay:value})}
+                                    onBlur={this.numberToString}
+                                    onFocus={this.stringToNumber}
                                     keyboardType={numberKeyboardType}/>
                             } />
+
+                        <InputBox
+                            label='내/외국인 선택'
+                            input={
+                                <View style={styles.switchList}>
+                                    <Switch
+                                        onPress={() => this.setState({foreigner:false}) }
+                                        label='내국인'
+                                        active={!this.state.foreigner}
+                                        buttonStyle={styles.switch} />
+                                    <Switch
+                                        onPress={() => this.setState({foreigner:true})}
+                                        label='외국인'
+                                        active={this.state.foreigner}
+                                        buttonStyle={styles.switch} />
+                                </View>
+                            }
+                        />
 
                         {/* 풀타임일 경우에만 상여금, 퇴직금 입력 받음 */}
                         {this.state.isFullTime && (
@@ -218,7 +267,7 @@ export default class AddEmployee extends Component {
                     {/* Submit Button */}
                     <SubmitButton
                         label='등록하기'
-                        disabled={!this.state.confirmValues}
+                        disabled={!this.state.isValidForm}
                         onSubmit={() => this.registerButtonClicked()}
                     />
 

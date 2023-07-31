@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import dayjs from 'dayjs';
 
 // Components
@@ -12,6 +12,7 @@ import Text from '../../components/common/Text';
 // Constants
 import { THEME } from '../../constants/theme';
 import { onUpdateNumbersOnly } from '../../utils/keyboard';
+import Constant from '../../utils/constants';
 
 // Styles
 const styles = StyleSheet.create({
@@ -84,14 +85,15 @@ export default class ModifyPhoneModal extends Component {
     cancelButtonClicked = () => {
         console.log('cancel button clicked...');
         this.props.cancelButtonListener();
-        //this.props.navigation.goBack();
     }
 
     okButtonClicked = () => {
-        console.log('ok button clicked...');
-        this.props.okButtonListener(this.state.phoneNumber);
-        //this.props.route.params.onResultListener(this.state.phoneNumber);
-        //this.props.navigation.goBack();
+        const phoneNumber = this.state.phoneNumber.replaceAll("-","");
+        if(phoneNumber.length<11) {
+            Alert.alert("입력오류","전화번호 형식이 아닙니다");
+        }
+        else
+            this.props.okButtonListener(phoneNumber);
     }
 
     render() {
@@ -101,7 +103,7 @@ export default class ModifyPhoneModal extends Component {
                     <View style={styles.header}>
                         <Text style={styles.titleText}>연락처 변경</Text>
                     </View>
-                    <InputBox label='연락처' input={<Input defaultValue={this.state.phoneNumber} onChangeText={(value) => this.setState({ phoneNumber: value })} />} />
+                    <InputBox label='연락처' input={<Input defaultValue={Constant.transformPhoneNumber(this.state.phoneNumber)} onChangeText={(value) => this.setState({ phoneNumber: value })} />} />
                 </View>
             </ModalContainer>
         );

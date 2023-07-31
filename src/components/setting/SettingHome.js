@@ -1,5 +1,5 @@
 import React, { useCallback, Component } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View,BackHandler } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Constants
@@ -42,13 +42,22 @@ export default class SettingHome extends Component {
         super(props);
     }
 
+
+    goLogoutAlert = () => {
+        Alert.alert(
+        '주의',
+        '로그아웃하고 앱을 종료합니다.',
+        [
+            { text: '취소', onPress: () => { } },
+            { text: '확인', onPress: () => { this.logout() } },
+        ],
+        { cancelable: false });
+        return true;
+   }
+
     logout=()=> {
-        console.log('logout clicked...');
         AsyncStorage.clear();
-     
-       this.props.navigation.navigate('SignIn')
-    
-        //this.props.navigation.popToTop();
+        this.props.navigation.navigate('SignIn');
     }
 
     render() {
@@ -63,9 +72,12 @@ export default class SettingHome extends Component {
                         ListHeaderComponent={()=><View style={styles.separator} />}
                         ListFooterComponent={()=><View style={styles.separator} />}
                     />
-                    <View style={styles.logoutButtonView}>
+                    <View style={styles.settingItem}>
+                        <Text style={styles.logoutButtonText}>로그아웃하면 다음 로그인 시 아이디와 비밀번호를 다시 입력하셔야 합니다.</Text>
+                    </View>
+                    <View style={styles.logoutButtonView}>                        
                         <TouchableOpacity
-                            onPress={this.logout}
+                            onPress={this.goLogoutAlert}
                             style={styles.logoutButton}
                             activeOpacity={0.8}>
                             <Text style={styles.logoutButtonText}>로그아웃</Text>
@@ -86,11 +98,15 @@ class RenderItem extends Component {
         this.navigation=this.props.navigation;
         this.item=this.props.item;
     }
+
     onPress=()=>{
-        this.navigation.navigate(this.item.link);
+        if(this.item.link=='NotificationManager')
+            Alert.alert("알림관리","이 기능은 추후 제공될 예정입니다");
+        else
+            this.navigation.navigate(this.item.link);
     }
+
     render() {
-        console.log('item',this.item)
         return (
             <TouchableOpacity
                 style={styles.settingItem}

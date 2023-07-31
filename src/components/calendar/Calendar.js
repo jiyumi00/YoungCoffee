@@ -14,42 +14,52 @@ import WebServiceManager from '../../utils/webservice_manager';
 import { CommonActions } from '@react-navigation/native';
 import Constant from '../../utils/constants';
 
-const ScreenHeight = Dimensions.get('window').height;
-const ScreenWidth = Dimensions.get('window').width;
 
 export default class Calendar extends Component {
     constructor(props) {
         super(props);
-        this.AnimatedHeaderValue = new Animated.Value(0);
         this.userID = '';
         this.state = {
+            date:dayjs(new Date()).format("YYYY-MM-DD"),
             contents: {},
             refreshing: false,
-            emptyListViewVisible: false
         }
     }
-    onRefresh = () => {
-        this.setState({ refreshing: true });
-        this.goWorkedList();
-        console.log('refreshing complete...') //refresing 할 api넣기
-        this.setState({ refreshing: false });
+
+    componentDidMount() {
+        this.goWorkedList(this.state.date);
     }
 
-    goWorkedList = () => {
+    //카렌다를 아래로 쓸면...
+    onRefresh = () => {
+        this.setState({ refreshing: true });
+        this.goWorkedList(this.state.date);
+        this.setState({refreshing:false});
+    }
+
+    //해당월에 일한 불러오기
+    goWorkedList = (date) => {
         Constant.getUserInfo().then((response) => {
             this.userID = response.userID;
-            const todate = dayjs(new Date()).format('YYYY-MM-DD');
-            this.callGetWorkedListAPI(todate).then((response) => {
-                this.setState({ contents: response });
+            this.callGetWorkedListAPI(date).then((response) => {
+                this.setState({ contents: response});
             });
         });
     }
-    componentDidMount() {
-        this.goWorkedList();
+
+    //월 변경시
+    onMonthChanged = (date) => {
+        this.setState({date:date.dateString},()=> {
+            this.goWorkedList(this.state.date);
+        });
+    }
+
+    //날짜 선택시
+    onDateClicked = (date) => {
+        this.props.navigation.navigate('ReportDetail', { date: date });
     }
 
     async callGetWorkedListAPI(todate) {
-        console.log('userID = ', this.userID);
         let manager = new WebServiceManager(Constant.serviceURL + "/GetWorkedList?user_id=" + this.userID + "&day=" + todate);
         let response = await manager.start();
         if (response.ok)
@@ -58,44 +68,14 @@ export default class Calendar extends Component {
             Promise.reject(response);
     }
 
-    onMonthChanged = (date) => {
-        console.log('month changed', date);
-        this.callGetWorkedListAPI(date.dateString).then((response) => {
-            this.setState({ contents: response });
-        });
-    }
 
-    onDateClicked = (date) => {
-        console.log('selected date=', date);
-        this.props.navigation.navigate('ReportDetail', { date: date });
-    }
-    goWorkedList=()=>{
-        Constant.getUserInfo().then((response) => {
-            this.userID = response.userID;
-            const todate = dayjs(new Date()).format('YYYY-MM-DD');
-            this.callGetWorkedListAPI(todate).then((response) => {
-                this.setState({ contents: response });
-            });
-        });
-    }
     render() {
-        const Header_Maximum_Height = ScreenHeight / 800;
-        const Header_Minimum_Height = 0;
         return (
             <SafeAreaView style={{ flex: 1 }}>
-
-                {this.state.emptyListViewVisible === false && <ScrollView
-                    
-                    contentContainerStyle={[ { paddingTop: Header_Maximum_Height + Header_Minimum_Height }]}
+             <ScrollView
                     showsHorizontalScrollIndicator={false}
                     showsVerticalScrollIndicator={false}
-                    refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}
-                    onScroll={Animated.event(
-                        [{ nativeEvent: { contentOffset: { y: this.AnimatedHeaderValue } } }],
-                        { useNativeDriver: true })}
-                    onRefresh={this.onRefresh}
-                >
-
+                    refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}>
                     <RNCalendar
                         markedDates={this.state.contents}
                         style={{ border: 'none' }}
@@ -110,32 +90,12 @@ export default class Calendar extends Component {
                         renderHeader={(date) => <CustomHeader date={date} />}
                     //hideDayNames
                     />
-
                 </ScrollView>
-                }
-
-                {this.state.emptyListViewVisible === true && <EmptyListView refreshing={this.state.refreshing} onRefreshListener={this.onRefresh} contentContainerStyle={{ paddingTop: Header_Maximum_Height }} navigation={this.props.navigation} />}
-
             </SafeAreaView>
         );
     }
 }
 
-class EmptyListView extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            refreshing: this.props.refreshing
-        }
-    }
-    render() {
-        return (
-            <View>
-                <Text>해당사항 없음</Text>
-            </View>
-        )
-    }
-}
 
 LocaleConfig.locales.kr = {
     monthNames: [

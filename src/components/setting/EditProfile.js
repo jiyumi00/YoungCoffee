@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, Alert } from 'react-native';
 
 // Components
 import SettingHeader from '../../components/setting/SettingHeader';
@@ -8,61 +8,87 @@ import Insets from '../../components/common/Insets';
 import Input from '../../components/common/Input';
 import Text from '../../components/common/Text';
 import SubmitButton from '../../components/common/SubmitButton';
+import Constant from '../../utils/constants';
+import WebServiceManager from '../../utils/webservice_manager';
 
 // Constants
 import { THEME } from '../../constants/theme';
 import { PASSWORD_INPUT } from '../../constants/input';
+import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
 
-// Styles
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: THEME.COLOR.WHITE_COLOR,
-    },
-    form: {
-        flexGrow: 1,
-        paddingHorizontal: 25,
-    },
-    input: {
-        paddingHorizontal: 14,
-        paddingVertical: 7,
-        backgroundColor: THEME.COLOR.WHITE_COLOR,
-        borderColor: THEME.COLOR.SILVER,
-        borderWidth: 1,
-    },
-    value: {},
-    valueText: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: THEME.COLOR.BLACK_COLOR,
-    },
-});
 
-export default class EditProfileScreen extends Component{
+
+export default class EditProfile extends Component{
 
     constructor(props){
         super(props);
+
         this.state={
+            userInfo:{},
             previousPassword:'',
             password:null,
             passwordConfirm:null,
         }
     }
+
+    componentDidMount() {
+        Constant.getUserInfo().then((userInfo)=> {
+            this.setState({userInfo:userInfo});
+        });
+    }
+
     onSubmit=()=>{
         console.log('data',this.state.previousPassword,this.state.password,this.state.passwordConfirm)
+        if(this.state.password!=this.state.passwordConfirm) {
+            Alert.alert("입력오류","새로운 패스워드가 일치하지 않습니다");
+        }
+        else {
+            this.callModifyUserAPI().then((response)=> {
+                if(response.success>0) {
+                    Alert.alert("정보수정",response.message);
+                    this.props.navigation.goBack();
+                }
+                else {
+                    Alert.alert("정보수정",response.message);
+                }
+            });
+        }
     }
+
+    async callModifyUserAPI() {
+        let manager = new WebServiceManager(Constant.serviceURL+"/ModifyUser","post");
+        const formData = {
+            userID:this.state.userInfo.userID,
+            cmpNo:this.state.userInfo.cmpNo,
+            passwd:this.state.previousPassword,
+            newPasswd:this.state.password};
+
+        manager.addFormData("data",formData);
+        let response = await manager.start();
+        if (response.ok)
+            return response.json();
+        else
+            Promise.reject(response);
+    }
+
     render(){
+        const {cmpName,cmpNo,cmpAddress,repName} = this.state.userInfo;
+        let displayedCmpNo='';
+        if(cmpNo!=undefined)
+            displayedCmpNo=Constant.transformCmpNo(cmpNo);
+
+        console.log('랜더링 in EditProfile = ',this.state.userInfo);
         return(
              <View style={styles.container}>
             <Insets>
                 <SettingHeader title='내 정보 관리' />
                 <ScrollView style={styles.form}>
                     <InputBox
-                        label='법인명'
+                        label='가맹점명'
                         input={
                             <View style={styles.value}>
                                 <Text style={styles.valueText}>
-                                    영커피 센텀점
+                                    {cmpName}
                                 </Text>
                             </View>
                         }
@@ -73,7 +99,7 @@ export default class EditProfileScreen extends Component{
                         input={
                             <View style={styles.value}>
                                 <Text style={styles.valueText}>
-                                    123-45-67890
+                                    {displayedCmpNo}
                                 </Text>
                             </View>
                         }
@@ -83,7 +109,7 @@ export default class EditProfileScreen extends Component{
                         label='대표자'
                         input={
                             <View style={styles.value}>
-                                <Text style={styles.valueText}>홍길동</Text>
+                                <Text style={styles.valueText}>{repName}</Text>
                             </View>
                         }
                     />
@@ -93,21 +119,21 @@ export default class EditProfileScreen extends Component{
                         input={
                             <View style={styles.value}>
                                 <Text style={styles.valueText}>
-                                    부산광역시 해운대구 우동 123-4, 1층
+                                    {cmpAddress}
                                 </Text>
                             </View>
                         }
                     />
-
+{/*
                     <InputBox
                         label='아이디'
                         input={
                             <View style={styles.value}>
-                                <Text style={styles.valueText}>abcd1234</Text>
+                                <Text style={styles.valueText}>{cmpNo}</Text>
                             </View>
                         }
                     />
-
+ */}
                     <InputBox
                         label='기존 비밀번호'
                         input={
@@ -152,3 +178,29 @@ export default class EditProfileScreen extends Component{
         )
     }
 }
+
+
+// Styles
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: THEME.COLOR.WHITE_COLOR,
+    },
+    form: {
+        flexGrow: 1,
+        paddingHorizontal: 25,
+    },
+    input: {
+        paddingHorizontal: 14,
+        paddingVertical: 7,
+        backgroundColor: THEME.COLOR.WHITE_COLOR,
+        borderColor: THEME.COLOR.SILVER,
+        borderWidth: 1,
+    },
+    value: {},
+    valueText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: THEME.COLOR.BLACK_COLOR,
+    },
+});

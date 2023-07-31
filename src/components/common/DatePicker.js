@@ -1,8 +1,10 @@
-import { StyleSheet, View, Modal } from 'react-native';
-import React, { Component, useState } from 'react';
+import { StyleSheet, View, Text } from 'react-native';
+import React, { Component } from 'react';
 import RNDatePicker from 'react-native-date-picker';
 import dayjs from 'dayjs';
 import ModalContainer from '../modal/ModalContainer';
+
+import { THEME } from '../../constants/theme';
 
 
 //react-native-date-picker을 이용한 DatePicker에 들어가는 date파라메터는
@@ -15,15 +17,17 @@ export default class DatePicker extends Component {
         this.date=this.props.defaultDate;
         this.mode=this.props.mode;
 
+        if(this.props.hasOwnProperty("title"))
+            this.title=this.props.title;
+        else
+            this.title='';
+
         this.state={
             selectedDate:this.date
         }
-
-        console.log('today on DatePicker = ',this.date);
     }
 
     okButtonClicked=()=> {
-        console.log('selected date = ',this.state.selectedDate);
         this.props.onSelectedListener(this.state.selectedDate);
         this.props.onClose();
     }
@@ -49,6 +53,11 @@ export default class DatePicker extends Component {
                         onPress: this.onClose,
                     },
                 ]}>
+                {this.title!='' && (
+                    <View style={styles.header}>
+                            <Text style={styles.titleText}>{this.title}</Text>
+                    </View>
+                )}
                 <View style={styles.contents}>
                     <RNDatePicker
                         date={this.state.selectedDate}
@@ -67,6 +76,15 @@ const styles = StyleSheet.create({
     contents: {
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    header: {
+        marginBottom: 6,
+    },
+    titleText: {
+        textAlign: 'center',
+        fontSize: 16,
+        fontWeight: '600',
+        color: THEME.COLOR.VIOLET_COLOR,
     },
 });
 

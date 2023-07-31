@@ -107,7 +107,7 @@ export default class DetailListItem extends Component {
                     </View>
 
                     <View style={styles.totalAmount}>
-                        <Text style={styles.totalAmountText}>{amountFormat(this.item.total+this.item.holidayPay)}원</Text>
+                        <Text style={styles.totalAmountText}>{amountFormat(parseInt((this.item.total+this.item.holidayPay)/10)*10)}원</Text>
                     </View>
 
                     <View style={[ styles.toggleIcon, this.state.onToggle && styles.activeToggleIcon]}>
@@ -152,8 +152,6 @@ class HistoryListItem extends Component {
     onModifyWorkTime=(item)=> {
         console.log('일한 시간 수정 버튼 클릭',item);
         this.props.onModifyListener(item);
-        //this.setState({isModifyModalVisible:true});
-        //this.props.navigation.navigate('PayrollModal', { data: this.state.selectedData });
     }
 
     render() {

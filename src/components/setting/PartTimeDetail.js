@@ -1,5 +1,5 @@
 import React, { Component, useCallback } from 'react';
-import { StyleSheet, View, FlatList, Pressable } from 'react-native';
+import { StyleSheet, View, FlatList, Pressable, Alert } from 'react-native';
 import dayjs, { extend } from 'dayjs';
 
 // Constants
@@ -24,7 +24,6 @@ import WebServiceManager from '../../utils/webservice_manager';
 // Utils
 import { amountFormat } from '../../utils/AmountFormat';
 
-import { LogBox } from 'react-native';
 import { shouldUseActivityState } from 'react-native-screens';
 
 
@@ -56,6 +55,10 @@ export default class PartTimeDetail extends Component {
     }
 
     componentDidMount() {
+        this.goGetEmployeeDetail();
+    }
+
+    goGetEmployeeDetail=()=> {
         this.callGetEmployeeDetailAPI().then((response)=> {
             console.log('직원 상세 정보 response = ',response);
             this.setState({contents:response});
@@ -76,28 +79,32 @@ export default class PartTimeDetail extends Component {
             <View style={styles.container}>
                 <Insets>
                     {/* Contents */}
+                    {Object.keys(this.state.contents).length!=0 && (
                     <FlatList
                         data={null}
                         style={styles.contents}
                         renderItem={null}
-                        ListHeaderComponent={()=><BaseInfo navigation={this.props.navigation} item={this.state.contents}/>}
+                        ListHeaderComponent={()=><BaseInfo item={this.state.contents} refreshListener={this.goGetEmployeeDetail}/>}
                         ListFooterComponent={()=><AdditionalInfo pays={this.state.contents.pays}/>}
-                    />
+                    />)}
                 </Insets>
             </View>
         );
     }
 }
 
+//직원의 기본적인 정보 (이륻부터 활성화상태까지)
 class BaseInfo extends Component {
     constructor(props) {
         super(props);
+
+        this.tel=this.props.item.tel;
 
         this.state={
             phoneModalVisible:false,
             salaryModalVisible:false,
             activateModalVisible:false,
-            isActivate:false
+            isActivate:false,
         }
         
     }
@@ -109,42 +116,96 @@ class BaseInfo extends Component {
             this.setState({isActivate:false});
     }
 
+    //폰번호 수정시 팝업 
     editPhoneModal=()=> {
         this.setState({phoneModalVisible:true});
-        //this.props.navigation.navigate('ModifyPhoneModal', {data:BASE_DATA.phone,onResultListener:this.getPhoneResult});
     }
 
+    //전화번호 수정 (수정 후 상위 클래스에서 refresh)
     getPhoneNumber=(phoneNumber)=> {
         this.setState({phoneModalVisible:false});
-        console.log('phone hnumber=',phoneNumber);
+        this.callModifyDailyEmployeeAPI(phoneNumber,this.state.isActivate? 1:0).then((response)=> {
+            this.props.refreshListener();
+            if(response.success==0)
+                Alert.alert("정보수정","정보수정에 실패했습니다");
+        });
     }
 
+    //시급수정시 팝업
     editSalaryModal=()=> {
         this.setState({salaryModalVisible:true});
-        //this.props.navigation.navigate('ModifySalaryModal', {data:BASE_DATA.salary,title:'연봉',onResultListener:this.getSalary});
     }
 
-    getSalary=(salary)=> {
+
+    //시급수정 (수정 후 상위 클래스에서 refresh)
+    getSalary=(date,pay)=> {
         this.setState({salaryModalVisible:false});
-        console.log('salary=',salary);
+        this.callModifyDailyPayAPI(date,pay).then((response)=> {
+            this.props.refreshListener();
+            if(response.success<=0)
+                Alert.alert("시급수정",response.message);
+        });
     }
 
+    //활성화 버튼 팝업
     editActivationModal=()=> {
-        //this.props.navigation.navigate('ModifyActivationModal', {data:this.state.isActivate,onResultListener:this.getActivate});
         this.setState({activateModalVisible:true});
     }
 
+
+    //활성화 상태 수정 (수정 후 상위 클래스에서 refresh)
     getActivate=(activate)=> {
         console.log('activate=',activate);
         this.setState({activateModalVisible:false, isActivate:activate});
+        this.callModifyDailyEmployeeAPI(this.tel,activate? 1:0).then((response)=> {
+            this.props.refreshListener();
+            if(response.success==0)
+                Alert.alert("정보수정","정보수정에 실패했습니다");
+        });
+
     }
 
     cancelButtonListener=(value)=> {
         this.setState(value);
     }
 
+    async callModifyDailyPayAPI(date,pay) {
+        let manager = new WebServiceManager(Constant.serviceURL+"/ModifyDailyPay","post");
+
+        const formData={
+            employeeID:this.props.item.id,
+            startDate:dayjs(date).format("YYYY-MM-DD"),
+            pay:parseInt(pay)
+        };
+            
+        manager.addFormData("data",formData);        
+        let response = await manager.start();
+        if (response.ok)
+            return response.json();
+        else
+            Promise.reject(response);
+    }
+
+    async callModifyDailyEmployeeAPI(tel,validate){
+        let manager = new WebServiceManager(Constant.serviceURL+"/ModifyDailyEmployee","post");
+
+        const formData={
+            employeeID:this.props.item.id,
+            tel:tel,
+            validate:validate
+        };
+            
+        manager.addFormData("data",formData);        
+        let response = await manager.start();
+        if (response.ok)
+            return response.json();
+        else
+            Promise.reject(response);
+    }
+
     render() {
         const {name,cNumber,tel,startDate,pay} = this.props.item;
+        
         return(<>
             {/* header */}
             <SettingHeader title='' />
@@ -161,7 +222,7 @@ class BaseInfo extends Component {
 
                 <View style={styles.idCardNumber}>
                     <Text style={styles.idCardNumberText}>
-                        {cNumber}
+                        {Constant.transformCNumber(cNumber)}
                     </Text>
                 </View>
             </View>
@@ -173,16 +234,18 @@ class BaseInfo extends Component {
                     value={
                         <>
                             <Text style={styles.valueText}>
-                                {tel}
+                                {Constant.transformPhoneNumber(tel)}
                             </Text>
-                            <Pressable
-                                style={styles.modifyButton}
-                                onPress={() =>this.editPhoneModal()}>
-                                <Image
-                                    source={ModifyIcon}
-                                    style={styles.buttonIcon}
-                                />
-                            </Pressable>
+                            {this.state.isActivate && (
+                                <Pressable
+                                    style={styles.modifyButton}
+                                    onPress={() =>this.editPhoneModal()}>
+                                    <Image
+                                        source={ModifyIcon}
+                                        style={styles.buttonIcon}
+                                    />
+                                </Pressable>
+                            )}
                         </>
                     }
                 />
@@ -199,6 +262,7 @@ class BaseInfo extends Component {
                     value={
                         <>
                             <Text style={styles.valueText}>{amountFormat(pay)}</Text>
+                            {this.state.isActivate && (
                             <Pressable
                                 style={styles.modifyButton}
                                 onPress={() =>this.editSalaryModal()}>
@@ -207,6 +271,7 @@ class BaseInfo extends Component {
                                     style={styles.buttonIcon}
                                 />
                             </Pressable>
+                            )}
                         </>
                     }
                 />
@@ -227,7 +292,7 @@ class BaseInfo extends Component {
                 <ModifyPhoneModal data={tel} okButtonListener={this.getPhoneNumber} cancelButtonListener={()=>this.cancelButtonListener({phoneModalVisible:false})}/>
             )}
             {this.state.salaryModalVisible && (
-                <ModifySalaryModal data={pay} title="시급" okButtonListener={this.getSalary} cancelButtonListener={()=>this.cancelButtonListener({salaryModalVisible:false})}/>
+                <ModifySalaryModal data={pay} title="시급" okButtonListener={(date,pay)=>this.getSalary(date,pay)} cancelButtonListener={()=>this.cancelButtonListener({salaryModalVisible:false})}/>
             )}
             {this.state.activateModalVisible && (
                 <ModifyActivationModal data={this.state.isActivate} okButtonListener={this.getActivate} cancelButtonListener={()=>this.cancelButtonListener({activateModalVisible:false})}/>
@@ -238,7 +303,7 @@ class BaseInfo extends Component {
 }
 
 
-
+//시급 변경 내역 리스트
 class AdditionalInfo extends Component {
     constructor(props){
         super(props);
@@ -249,7 +314,7 @@ class AdditionalInfo extends Component {
         return (
             <View style={styles.salaryDetails}>
                 <View style={styles.detailsTitle}>
-                    <Text style={styles.detailsTitleText}>시급 상세 내역</Text>
+                    <Text style={styles.detailsTitleText}>시급 변경 내역</Text>
                 </View>
 
                 <FlatList

@@ -19,6 +19,7 @@ import WebServiceManager from '../../utils/webservice_manager';
 
 // Utils
 import { numberKeyboardType, onUpdateNumbersOnly } from '../../utils/keyboard';
+import { amountFormat } from '../../utils/AmountFormat';
 
 
 /*
@@ -46,7 +47,10 @@ export default class AddPartTimeModal extends Component {
 
     // 시간등록이냐 보너스 등록이냐... 선택
     onChangeMenu = (key) => {
-        this.setState({ activeMenu: key });
+        if(key=='bonus')
+            Alert.alert("기능제한","현재 이 기능은 사용할 수 없습니다");
+        else
+            this.setState({ activeMenu: key });
 
         /*     // form 초기화
             setTargetDate(todayStartTime);
@@ -134,13 +138,12 @@ class TimeMenu extends Component {
         this.today = this.today.set("minute",minute);    
         
         this.state={
-            //targetDate:new Date(dayjs().startOf('day').valueOf()),
+            isValidForm:false,
             date:this.today,
-            //startTime:new Date(dayjs().startOf('time').valueOf()),
             startTime:this.today,
-            //endTime:new Date(dayjs().startOf('day').valueOf()),
             endTime:this.today,
-            amount:this.employee.pay,
+            pay:this.employee.pay,
+            displayedPay:amountFormat(this.employee.pay),
             isVisible:false,
             selectedKind:'date',
         }
@@ -154,27 +157,53 @@ class TimeMenu extends Component {
                 console.log('case date = ',this.state.date);
                 break;
             case 'startTime':
-                this.setState({startTime:value});
+                this.setState({startTime:value},()=>{
+                    this.onValidForm();
+                });
                 break;
             case 'endTime':
-                this.setState({endTime:value});
+                this.setState({endTime:value},()=> {
+                    this.onValidForm();
+                });
                 break;
         }
+    }
+
+    onValidForm=()=> {
+        let isValidForm=true;
+        console.log('날짜 변경 = ',this.state.startTime,this.state.endTime);
+        if(parseInt(this.state.pay)<=0 || this.state.pay.length==0 || isNaN(this.state.pay))
+            isValidForm=false;
+        if(dayjs(this.state.startTime).format("HH:mm")>=dayjs(this.state.endTime).format("HH:mm"))
+            isValidForm=false;
+       
+        this.setState({isValidForm:isValidForm});
     }
   
     onCloseModal=()=>{
         this.setState({selectedKind:null,isVisible:false})
     }
+
     //달력 또는 시간선택 아이콘 버튼을 눌렀을 때
     openDateTimeModal=(value)=>{
         this.setState({selectedKind:value, isVisible:true})
     }
 
-    setAmount=(text)=>{
-        this.setState({amount:text})
+    setAmount=(value)=>{
+        this.setState({pay:parseInt(value),displayedPay:value},()=> {
+            this.onValidForm();
+        });
     }
 
+    //금액의 숫자를 , 를 넣은 문자열로 변환
+    numberToString=()=> {
+        this.setState({displayedPay:amountFormat(this.state.pay)});
+    }
 
+    //,가 있는 금액을 숫자로 변환
+    stringToNumber=()=> {
+        this.setState({displayedPay:this.state.pay});
+    }
 
     onSubmit=()=>{
         this.callAddDailyWorkAPI().then((response)=> {
@@ -201,7 +230,7 @@ class TimeMenu extends Component {
             startDate:dayjs(this.state.date).format("YYYY-MM-DD"),
             startTime:dayjs(this.state.startTime).format("HH:mm"),
             endTime:dayjs(this.state.endTime).format("HH:mm"),
-            pay:this.state.amount};
+            pay:this.state.pay};
             
         manager.addFormData("data",formData);
         
@@ -265,8 +294,10 @@ class TimeMenu extends Component {
                         label='금액'
                         input={
                             <Input
-                                value={this.state.amount.toString()}
-                                onChangeText={(text) => this.setAmount(onUpdateNumbersOnly(text))}
+                                value={this.state.displayedPay.toString()}
+                                onChangeText={(value) => this.setAmount(value)}
+                                onBlur={this.numberToString}
+                                onFocus={this.stringToNumber}
                                 keyboardType={numberKeyboardType}
                             />
                         }
@@ -275,7 +306,7 @@ class TimeMenu extends Component {
                 
                 {/* Submit Button */}
                 <SubmitButton
-                    disabled={!this.state.amount || this.state.startTime > this.state.endTime}
+                    disabled={!this.state.isValidForm}
                     onSubmit={()=>this.onSubmit()}
                     label='등록하기'
                 />

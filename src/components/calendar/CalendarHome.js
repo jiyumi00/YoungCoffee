@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, StyleSheet, View, BackHandler,Alert } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 // Components
 import Insets from '../common/Insets';
@@ -14,24 +14,7 @@ export default class CalendarHome extends Component {
     constructor(props) {
         super(props);
     }
-    componentDidMount() {
-        BackHandler.addEventListener("hardwareBackPress", this.backPressed);
-    }
-    //이벤트 삭제
-    componentWillUnmount() {
-        BackHandler.removeEventListener("hardwareBackPress", this.backPressed);
-    }
-    backPressed = () => {
-        Alert.alert("", "앱을 종료하시겠습니까?", [
-            {
-                text: "취소",
-                onPress: () => null,
-                style: "cancel"
-            },
-            { text: "확인", onPress: () => BackHandler.exitApp() }
-        ]);
-        return true;
-    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -42,9 +25,9 @@ export default class CalendarHome extends Component {
                             {/* Logo */}
                             <Logo />
                         </View>
-
+    
                         {/* Calendar */}
-                        <Calendar navigation={this.props.navigation} />
+                        <Calendar navigation={this.props.navigation}/>
                     </ScrollView>
                 </Insets>
             </View>

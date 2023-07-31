@@ -44,13 +44,20 @@ export default class Login extends Component {
         }
     }
 
+    componentDidMount() {
+        Constant.getUserInfo().then((userInfo)=> {
+            if(userInfo.userID!=0)
+                this.props.navigation.navigate("MainTab");
+        });
+    }
+
     //폼 유효성 검사
     onValidForm=(value)=> {
         this.setState(value,()=> {
             let isValidForm = true;
             if(this.state.id.trim().length<10)
                 isValidForm=false;
-            if(this.state.password.trim().length<4)
+            if(this.state.password.trim().length<1)
                 isValidForm=false;
             this.setState({isValidForm:isValidForm});
         });
@@ -60,28 +67,24 @@ export default class Login extends Component {
     //MainTab
     onSubmit=()=> {
         this.callLoginAPI().then((response)=> {
+            this.setState({id:'',password:''});
             console.log('userInfo=',response);
             if(response.userID==0) {
                 Alert.alert('아이디 또는 비밀번호를 확인해주세요', '',);
                 return;
             }
-            else if(response.userID!=0) {
+            else if(response.userID!=0 && response.firstLogin==0) {
                 AsyncStorage.setItem('userInfo',JSON.stringify(response));
-                //this.props.navigation.navigate('AddEmployee');
-                this.props.navigation.navigate('MainTab',{screen:'Home'});
-            }
-            //최초로그인일 경우 패스워드 변경화면으로 이동(이동하고 패스워드 수정후의 액션 문제때문에 다음으로 미룸)
-            /*
-            if(response.userID!=0 && response.firstLogin==1)
-                this.props.navigation.navigate("FirstLogin",{cmpNo:response.cmpNo,cmpName:response.cmpName});
-            */
-        
+                this.props.navigation.navigate('MainTab');
+            }            
+            else if(response.userID!=0 && response.firstLogin==1)
+                this.props.navigation.navigate("FirstLogin",{userID:response.userID,cmpNo:response.cmpNo,cmpName:response.cmpName,cmpTel:response.cmpTel});
         })
     }
 
     async callLoginAPI() {
         let manager = new WebServiceManager(Constant.serviceURL+"/Login","post");
-        const formData = {id:this.state.id,passwd:this.state.password};
+        const formData = {id:this.state.id.replace("-",""),passwd:this.state.password};
         manager.addFormData("data",formData);
         let response = await manager.start();
         if (response.ok)
@@ -119,9 +122,9 @@ export default class Login extends Component {
                             label='아이디'
                             input={
                                 <Input
-                                    placeholder='사업자등록번호 10자리.'
+                                    placeholder='사업자등록번호 10자리. - 없이'
                                     onChangeText={(value)=>this.onValidForm({id:value})}
-                                    value={this.state.id}
+                                    value={Constant.transformCmpNo(this.state.id)}
                                     returnKeyType="next"
                                     keyboardType={numberKeyboardType}
                                     {...ID_INPUT}

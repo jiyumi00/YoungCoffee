@@ -62,6 +62,7 @@ export default class ModifyWorkTimeModal extends Component {
             startTime:this.startDate,
             endTime:this.endDate,
             pay:this.data.pay,
+            displayedPay:amountFormat(this.data.pay),
             selectedTime:'',
             isDatePickerVisible:false
         }
@@ -73,11 +74,14 @@ export default class ModifyWorkTimeModal extends Component {
 
  
     submit = () => {
-        this.callModifyWorkedTimeAPI().then((response)=> {
-            console.log('시간 수정 API호출 후 메시지 = ',response);
-            Alert.alert('근무수정',response.message);
-        })
-        this.onClose();
+        if(dayjs(this.state.startTime).format("HH-mm")>=dayjs(this.state.endTime).format("HH-mm") || parseInt(this.state.pay)<=0 || this.state.pay.toString().length==0 || isNaN(this.state.pay))
+            Alert.alert("입력오류","시간 또는 금액이 잘못되었습니다");
+        else {
+            this.callModifyWorkedTimeAPI().then((response)=> {
+                Alert.alert('근무수정',response.message);
+            })
+            this.onClose();
+        }        
     };
 
     // DatePicker 닫기
@@ -100,6 +104,21 @@ export default class ModifyWorkTimeModal extends Component {
         }
     }    
 
+    onPayChanged=(value)=> {
+        this.setState({pay:parseInt(value),displayedPay:value});
+    }
+
+    //금액의 숫자를 , 를 넣은 문자열로 변환
+    numberToString=()=> {
+        this.setState({displayedPay:amountFormat(this.state.pay)});
+    }
+
+    //,가 있는 금액을 숫자로 변환
+    stringToNumber=()=> {
+        this.setState({displayedPay:this.state.pay});
+    }
+
+
     //{"id":28,"startDate":"2023-07-02","start":"10:00","end":"17:00","pay":9620}
     async callModifyWorkedTimeAPI() {
         let manager = new WebServiceManager(Constant.serviceURL+"/ModifyWorkedTime","post");
@@ -109,7 +128,7 @@ export default class ModifyWorkTimeModal extends Component {
             startDate:dayjs(this.data.startDate).format("YYYY-MM-DD"),
             start:dayjs(this.state.startTime).format("HH:mm"),
             end:dayjs(this.state.endTime).format("HH:mm"),
-            pay:this.state.pay};
+            pay:parseInt(this.state.pay)};
             
         manager.addFormData("data",formData);
         console.log('final form data = ',formData);
@@ -130,7 +149,6 @@ export default class ModifyWorkTimeModal extends Component {
         else
             displayedTime=this.state.endTime;
 
-        console.log('render = ',displayedTime);
         return (
             <>
                 <ModalContainer
@@ -191,8 +209,10 @@ export default class ModifyWorkTimeModal extends Component {
                                 label='금액'
                                 input={
                                     <Input
-                                        value={amountFormat(this.state.pay)}
-                                        onChangeText={(value) => this.setState({pay:value})}
+                                        value={this.state.displayedPay.toString()}
+                                        onChangeText={(value) => this.onPayChanged(value)}
+                                        onBlur={this.numberToString}
+                                        onFocus={this.stringToNumber}
                                         keyboardType={numberKeyboardType}
                                     />
                                 }

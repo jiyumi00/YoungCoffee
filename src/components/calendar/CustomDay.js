@@ -40,23 +40,20 @@ export default class CustomDay extends Component {
     listItem = (item, index) => {
         const { name } = item;
         const color = CALENDAR_COLORS[index % 3];
-        return (
-            <>
-                {
-                    index < 3 && <View
-                        style={[styles.mark, { backgroundColor: color }]} key={name}>
-                        <Text style={styles.markText}>{name}</Text>
-                    </View>
-                }
-                {
-                    index === 3 && <View
-                        style={[styles.mark,{height:10}]} key={name}>
-                        <Text style={{ color: 'black' }}>˙˙˙</Text>
-                    </View>
-                }
-            </>
-
-        );
+        if(index<3) {
+            return (      
+                <View
+                    style={[styles.mark, { backgroundColor: color }]} key={name}>
+                    <Text style={styles.markText}>{name}</Text>
+                </View>);
+        }
+        else if(index==3) {
+            return (
+                <View
+                    style={[styles.mark,{height:10}]} key={name}>
+                    <Text style={{ color: 'black' }}>˙˙˙</Text>
+                </View>);
+        }
     }
 
     render() {

@@ -39,9 +39,19 @@ export default class QuickAddPartTime extends Component {
         Constant.getUserInfo().then((response)=> {
             this.userID=response.userID;
             this.callGetDailyEmployeesAPI().then((response)=> {
-                this.setState({contents:response});
+                this.setState({contents:this.filteredContents(response)});
             });
         });
+    }
+
+    //활성화되어 있는 아르바이트 직원만 filter
+    filteredContents=(data)=> {
+        let list = data;
+        list = list.filter((content)=> {
+            if(content.validate==1)
+                return true;
+        });
+        return list;
     }
 
     async callGetDailyEmployeesAPI() {

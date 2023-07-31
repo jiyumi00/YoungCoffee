@@ -13,10 +13,9 @@ import DetailListItem from '../../components/settlement/DetailListItem';
 import Text from '../../components/common/Text';
 import Constant from '../../utils/constants';
 import WebServiceManager from '../../utils/webservice_manager';
-import DatePicker from 'react-native-date-picker';
+import DatePicker from '../common/DatePicker';
 
-// utils
-import { monthFormat } from '../../utils/DateFormat';
+
 import dayjs from 'dayjs';
 
 
@@ -31,10 +30,9 @@ export default class SettlementDetail extends Component{
 
         this.userID='';
         this.item = this.props.route.params.data;
-        this.payDay=dayjs();
 
         this.state={
-            payDay:this.payDay,
+            payDay:dayjs(),
             contents:[],
             isModifyModalVisible:false,
             isDatePickerModalVisible:false
@@ -44,11 +42,11 @@ export default class SettlementDetail extends Component{
     //정산완료된 데이터를 읽을것인지.. 미정산된 데이터를 읽을것인지 판단
     //웹 서비스가 달라짐
     componentDidMount() {
+        //정산완료된 데이터를 읽음
         if(this.item.complete==1) {
             Constant.getUserInfo().then((response)=> {
                 this.userID=response.userID;
                 this.callGetCompletedSettlementAPI().then((response)=> {
-                    console.log('completed settlement response = ',response);
                     this.setState({contents:response});
                 });
             });
@@ -57,7 +55,6 @@ export default class SettlementDetail extends Component{
             Constant.getUserInfo().then((response)=> {
                 this.userID=response.userID;
                 this.callGetSettlementAPI().then((response)=> {
-                    console.log('completed settlement response = ',response);
                     this.setState({contents:response});
                 });
             });
@@ -65,15 +62,41 @@ export default class SettlementDetail extends Component{
     }    
 
 
+    //정산완료되지 않은 데이터에서 아르바이트 시간 수정 선택시
     onModifyListener=(item)=> {
-        console.log('modify in Detail',item);
         this.props.navigation.navigate('ModifyWorkTimeModal', { data: item });
     }
 
+    //마감신청 버튼 클릭시 급여지급일 선택 DatePicker 모달 실행
     setCompleteButtonClicked=()=> {
-        console.log('마감 신청 버튼 클릭됨');
+        this.setState({isDatePickerModalVisible:true});
+        
+    }
+
+    onDatePickerModalClose=()=> {
+        this.setState({isDatePickerModalVisible:false});
+    }
+
+    //급여지급일 선택완료하면 마감 신청 실행
+    onDateSelectedListener = (value) => {
+        this.setState({ payDay: value });
+        this.goSetCompleteConfirmAlert();
+    }
+
+    //마감신청을 진행할것인가?
+    goSetCompleteConfirmAlert = () => {
+        Alert.alert('마감신청','마감 신청을 하시겠습니까?',
+        [
+            { text: '취소', onPress: () => { this.setState({payDay:dayjs()}) } },
+            { text: '확인', onPress: () => { this.goSetComplete() } },
+        ],
+        { cancelable: false });
+        return true;
+   }
+
+   //마감 신청 진행
+   goSetComplete=()=> {
         this.callSetCompleteAPI().then((response)=> {
-            console.log('마감신청한 결과 = ',response);
             if(response.success>0) {
                 Alert.alert('마감신청','마감 신청이 성공적으로 등록되었습니다.');
                 this.props.navigation.goBack();
@@ -82,18 +105,7 @@ export default class SettlementDetail extends Component{
                 Alert.alert('마감신청','마감신청이 실패하였습니다.');
                 this.props.navigation.goBack();
             }
-
         });
-        //this.setState({isDatePickerModalVisible:true});
-    }
-
-    onDatePickerModalClose=()=> {
-        this.setState({isDatePickerModalVisible:false});
-    }
-
-    onDatePickerSelectedListener = (value) => {
-        //this.setState({ date: value });
-        console.log('case date = ', value);
     }
 
 
@@ -140,11 +152,11 @@ export default class SettlementDetail extends Component{
 
                 {this.state.isDatePickerModalVisible && (
                     <DatePicker
-                        defaultDate={new Date()}
-                        onSelectedListener={(value) => this.onDatePickerSelectedListener(value)}
+                        title="급여지급일 선택"
+                        defaultDate={new Date(this.state.payDay)}
+                        onSelectedListener={(value) => this.onDateSelectedListener(value)}
                         mode="date"
-                        onClose={this.onDatePickerModalClose}
-                    />
+                        onClose={this.onDatePickerModalClose}/>
                 )}
             </Insets>
         </View>
@@ -174,9 +186,9 @@ export default class SettlementDetail extends Component{
     } 
 
 
-    //마감신청 버튼 클릭시
+    //마감신청 API
     async callSetCompleteAPI() {
-        const payDay=dayjs(new Date()).format("YYYY-MM-DD");
+        const payDay=dayjs(this.state.payDay).format("YYYY-MM-DD");
         let manager = new WebServiceManager(Constant.serviceURL+"/SetComplete?user_id="+this.userID+"&day="+this.item.date+"&pay_day="+payDay);
         let response = await manager.start();
         if (response.ok)

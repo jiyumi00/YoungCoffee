@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 
 // Constants
 import WebServiceManager from '../../utils/webservice_manager';
@@ -30,8 +30,10 @@ export default class FirstLogin extends Component {
     constructor(props) {
         super(props);
 
+        this.userID=this.props.route.params.userID;
         this.cmpNo=this.props.route.params.cmpNo;
         this.cmpName=this.props.route.params.cmpName;
+        this.cmpTel=this.props.route.params.cmpTel;
 
         this.state={
             password:'',
@@ -42,7 +44,6 @@ export default class FirstLogin extends Component {
 
     onValidForm=(value)=> {
         this.setState(value,()=> {
-            console.log('value = ',this.state.password,this.state.passwordConfirm);
             let isValidForm=true;
             if(this.state.password.trim().length<4)
                 isValidForm=false;
@@ -55,15 +56,26 @@ export default class FirstLogin extends Component {
     }
 
     onSubmit=()=> {
-        console.log('passwd change clicked');
         this.callModifyUserAPI().then((response)=> {
             console.log('modify user response = ',response);
+            if(response.success>0) {
+                Alert.alert("정보수정",response.message);
+                this.props.navigation.navigate('SignIn');
+            }
+            else {
+                Alert.alert("정보수정",response.message);
+            }
         });
     }
 
     async callModifyUserAPI() {
         let manager = new WebServiceManager(Constant.serviceURL+"/ModifyUser","post");
-        const formData = {id:this.cmpNo,passwd:this.state.password};
+        const formData = {
+            userID:this.userID,
+            cmpNo:this.cmpNo,
+            passwd:this.cmpTel,
+            newPasswd:this.state.password};
+
         manager.addFormData("data",formData);
         let response = await manager.start();
         if (response.ok)
@@ -91,6 +103,10 @@ export default class FirstLogin extends Component {
     
                                 <Text style={styles.headerSubText}>
                                     {this.cmpName}님의 최초 로그인입니다.
+                                </Text>
+
+                                <Text style={styles.headerSubText}>
+                                    비밀번호를 변경하셔야 앱을 이용할 수 있습니다.
                                 </Text>
                             </View>
                         </View>
@@ -138,7 +154,7 @@ export default class FirstLogin extends Component {
     
                     {/* Submit Button */}
                     <SubmitButton
-                        label='비밀번호 변경'
+                        label='비밀번호 변경 후 재 로그인'
                         onSubmit={this.onSubmit}
                         disabled={!this.state.isValidForm}
                     />

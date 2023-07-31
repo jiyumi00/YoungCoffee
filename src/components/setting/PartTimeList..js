@@ -11,42 +11,12 @@ import Text from '../common/Text';
 //Component
 import WebServiceManager from '../../utils/webservice_manager';
 import Constant from '../../utils/constants';
-import UserInfoItemBox from './UserInfoItemBox';
+
+// Utils
+import { amountFormat } from '../../utils/AmountFormat';
 
 // Images
 const LinkIcon = require('../../assets/images/link_icon/link_icon.png');
-
-//active: true -> 활성화된 직원 ()
-const PART_DATA = [
-    {
-        id: 1,
-        name: '박바바',
-        createdAt: 1677628800000,
-        annualIncome: 9790,
-        active: true,
-    },
-    {
-        id: 2,
-        name: '이나나',
-        createdAt: 1677628800000,
-        annualIncome: 9790,
-        active: true,
-    },
-    {
-        id: 3,
-        name: '이아아',
-        createdAt: 1677628800000,
-        annualIncome: 9790,
-        active: true,
-    },
-    {
-        id: 4,
-        name: '김자자',
-        createdAt: 1677628800000,
-        annualIncome: 9790,
-        active: false,
-    },
-];
 
 export default class PartTimeList extends Component {
     constructor(props) {
@@ -135,7 +105,7 @@ export default class PartTimeList extends Component {
                         <View style={[styles.line]} />
                         <View style={styles.annualIncome}>
                             <Text style={[styles.employeeInfoText, item.validate === 1 && { color: 'black' }]}>
-                                {item.pay}원
+                                {amountFormat(item.pay)}원
                             </Text>
                         </View>
                     </View>

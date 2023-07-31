@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 import dayjs from 'dayjs';
 
 // Components
@@ -8,10 +8,13 @@ import InputBox from '../../components/common/InputBox';
 import Input from '../../components/common/Input';
 import DateButton from '../../components/common/DateButton';
 import Text from '../../components/common/Text';
+import DatePicker from '../common/DatePicker';
+
+import { amountFormat } from '../../utils/AmountFormat';
 
 // Constants
 import { THEME } from '../../constants/theme';
-import { onUpdateNumbersOnly } from '../../utils/keyboard';
+import { numberKeyboardType, onUpdateNumbersOnly } from '../../utils/keyboard';
 
 
 
@@ -25,11 +28,7 @@ import { onUpdateNumbersOnly } from '../../utils/keyboard';
  export default class ModifySalaryModal extends Component {
     constructor(props) {
         super(props);
-        this.today = dayjs();
-        const minute = parseInt(this.today.get("minute") / 10) * 10;
-        this.today = this.today.set("minute", minute);
 
-        this.selectedKind = 'date';
         this.modalButtons = [
             {
                 id: 1,
@@ -45,12 +44,11 @@ import { onUpdateNumbersOnly } from '../../utils/keyboard';
             },
         ];
 
-        this.title = this.props.title;
         this.state = {
-            amount: this.props.data,
-            //targetDate: new Date(dayjs().startOf('day').valueOf()),
-            date: this.today,
-            isVisible: false,
+            displayedPay:amountFormat(this.props.data),
+            pay: this.props.data,
+            date: dayjs(),
+            isDatePickerModalVisible: false,
         }
     }
 
@@ -63,36 +61,51 @@ import { onUpdateNumbersOnly } from '../../utils/keyboard';
 
     okButtonClicked = () => {
         console.log('ok button clicked...');
-        this.props.okButtonListener(this.state.amount);
-        //this.props.route.params.onResultListener(this.state.amount);
-        //this.props.navigation.goBack();
+        console.log('this.state.date = ',this.state.date);
+        console.log('금액이 숫자가 아닙니다. = ',isNaN(this.state.pay));
+        if(dayjs(this.state.date).format("YYYY-MM-DD")>=dayjs().format("YYYY-MM-DD") && !isNaN(this.state.pay))
+            this.props.okButtonListener(this.state.date,this.state.pay);            
+        else 
+            Alert.alert("입력오류","날짜는 오늘부터 가능하며, 금액은 숫자만 가능합니다");
+        
     }
     
-    //date하나밖에 없기때문에 바로 this.state.date에다가 넣음
+    
     onSelectedListener = (value) => {
         this.setState({ date: value });
-        console.log('case date = ', this.state.date);
     }
+
     onCloseModal = () => {
-        this.setState({ isVisible: false })
+        this.setState({ isDatePickerModalVisible: false })
     }
-    //달력 또는 시간선택 아이콘 버튼을 눌렀을 때
-    openDateTimeModal = () => {
-        this.setState({ isVisible: true })
+
+    //달력 아이콘 버튼을 눌렀을 때
+    openDatePickerModal = () => {
+        this.setState({ isDatePickerModalVisible: true })
     }
+
+    onPayChanged=(value)=> {
+        this.setState({pay:parseInt(value),displayedPay:value});
+    }
+
+    //금액의 숫자를 , 를 넣은 문자열로 변환
+    numberToString=()=> {
+        this.setState({displayedPay:amountFormat(this.state.pay)});
+    }
+
+    //,가 있는 금액을 숫자로 변환
+    stringToNumber=()=> {
+        this.setState({displayedPay:this.state.pay});
+    }
+
     render() {
-        let displayedDate = null;
-
-        if (this.selectedKind == 'date')
-            displayedDate = this.state.date;
-
         return (
             <>
                 <ModalContainer onClose={this.cancelButtonClicked} buttons={this.modalButtons}>
                
                     <View style={styles.contents}>
                         <View style={styles.header}>
-                            <Text style={styles.titleText}>{this.title} 변경</Text>
+                            <Text style={styles.titleText}>{this.props.title} 변경</Text>
                         </View>
                         <InputBox
                             label='날짜'
@@ -100,20 +113,25 @@ import { onUpdateNumbersOnly } from '../../utils/keyboard';
                                 <DateButton
                                     key={this.state.date}
                                     defaultDate={this.state.date}
-                                    onPress={() => this.openDateTimeModal('date')}
+                                    onPress={() => this.openDatePickerModal()}
                                 />
                             } />
                         <InputBox
                             label='금액'
-                            input={<Input defaultValue={this.state.amount.toString()} onChangeText={(value) => this.setState({ amount: value })} />} />
+                            input={<Input 
+                                        value={this.state.displayedPay.toString()}
+                                        onChangeText={(value) => this.onPayChanged(value)}
+                                        onBlur={this.numberToString}
+                                        onFocus={this.stringToNumber}
+                                        keyboardType={numberKeyboardType} />} />
                     </View>
                    
                 </ModalContainer>
-                {this.state.isVisible && (
+                {this.state.isDatePickerModalVisible && (
                     <DatePicker
-                        defaultDate={new Date(displayedDate)}
+                        defaultDate={new Date(this.state.date)}
                         onSelectedListener={(value) => this.onSelectedListener(value)}
-                        mode={this.selectedKind}
+                        mode="date"
                         onClose={this.onCloseModal}
                         style={styles.datePicker}
                     />

@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     },
 });
 
-export default class NotificationManagerScreen extends Component{
+export default class NotificationManager extends Component{
 
     constructor(props){
         super(props);
@@ -99,6 +99,7 @@ export default class NotificationManagerScreen extends Component{
 
         }
     }
+
     render(){
         return(
             <View style={styles.container}>
@@ -115,6 +116,7 @@ export default class NotificationManagerScreen extends Component{
         )
     }
 }
+
 class RenderItem extends Component{
 
     constructor(props){
