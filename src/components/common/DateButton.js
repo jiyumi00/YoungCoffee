@@ -1,20 +1,19 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, Pressable } from 'react-native';
+import React, {Component} from 'react';
+import {StyleSheet, Pressable} from 'react-native';
 import dayjs from 'dayjs';
 
 // Components
 import Image from './Image';
 
 // Constants
-import { THEME } from '../../constants/theme';
+import {THEME} from '../../constants/theme';
 
 // Utils
-import { dateFormat, timeFormat } from '../../utils/DateFormat';
+import {dateFormat, timeFormat} from '../../utils/DateFormat';
+import Text from './Text';
 
 // Images
 const DateIcon = require('../../assets/images/date_icon/date_icon.png');
-
-
 
 /**
  * @title Date 설정 버튼
@@ -24,54 +23,52 @@ const DateIcon = require('../../assets/images/date_icon/date_icon.png');
  */
 
 export default class DateButton extends Component {
-    constructor(props) { 
-        super(props);
-        this.onPress=this.props.onPress;
+  constructor(props) {
+    super(props);
+    this.onPress = this.props.onPress;
 
-        this.state={
-            defaultDate:null
-        }
-    }
+    this.state = {
+      defaultDate: null,
+    };
+  }
 
-    componentDidMount() {
-        this.setState({defaultDate:dayjs(this.props.defaultDate).format("YYYY년MM월DD일")});
-    }
+  componentDidMount() {
+    this.setState({
+      defaultDate: dayjs(this.props.defaultDate).format('YYYY-MM-DD'), //날짜 위치kh
+    });
+  }
 
-    render() {
-        return (
-            <Pressable style={styles.input} onPress={this.onPress}>
-                <Text style={styles.inputText}>{this.state.defaultDate}</Text>
-                <Image source={DateIcon} style={styles.icon} />
-            </Pressable>
-        );
-    }
+  render() {
+    return (
+      <Pressable style={styles.input} onPress={this.onPress}>
+        <Text style={styles.inputText} fontWeight={400}>
+          {this.state.defaultDate}
+        </Text>
+        <Image source={DateIcon} style={styles.icon} />
+      </Pressable>
+    );
+  }
 }
-
-
 
 // Styles
 const styles = StyleSheet.create({
-    input: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderColor: THEME.COLOR.LIGHT_GRAY,
-        borderWidth: 1,
-        borderStyle: 'solid',
-        paddingHorizontal: 15,
-        height: 42,
-    },
-    inputText: {
-        fontSize: 15,
-        fontFamily: 'Pretendard-Regular',
-        color: THEME.COLOR.MAIN_COLOR,
-    },
-    icon: {
-        width: 15,
-        position: 'absolute',
-        right: 15,
-    },
+  input: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderColor: THEME.COLOR.LIGHT_GRAY,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    paddingHorizontal: 12,
+    height: 40,
+  },
+  inputText: {
+    fontSize: 16,
+    color: THEME.COLOR.MAIN_COLOR,
+  },
+  icon: {
+    width: 14,
+    position: 'absolute',
+    right: 14,
+  },
 });
-
-
-

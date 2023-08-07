@@ -1,0 +1,96 @@
+div {
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+.logout{
+  margin-right: 15px;
+  color: #BF0757;
+}
+.mainColor,
+.sideColor {
+  color: white;
+  background-color: #002572;
+}
+
+.top {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 10;
+}
+
+.menu-bar {
+  position: fixed;
+  top: 55px;
+  left: 0;
+  z-index: 10;
+  width: 180px;
+  height: 100%;
+}
+
+.sidemenu {
+  padding: 15px;
+  text-align: center;
+
+}
+
+.sidemenu-inactive {
+  color: white;
+  padding: 15px;
+}
+
+.sidemenu-active {
+  padding: 15px;
+  background-color: white;
+  color: #BF0757;
+  font-weight: bold;
+
+}
+
+.main {
+  margin-top: 50px;
+  margin-left: 180px;
+  margin-bottom:0px;
+  overflow-x: hidden;
+  
+}
+
+@media screen and (max-width : 998px) {
+  .menu-bar {
+    width: 100%;
+    height: 50px;
+  }
+
+  .sidemenu {
+    width: 50%;
+    float: left;
+  }
+
+  .main {
+    margin-left: 0px;
+    margin-top: 105px;
+   
+  }
+
+}
+
+@media screen and (max-width : 768px) {
+  
+  .sidemenu {
+    font-size: 12px;
+  }
+  .main {
+    margin-top: 88px;
+  }
+  .menu-bar {
+    top: 40px;
+    height: 48px;
+  }
+}

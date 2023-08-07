@@ -1,0 +1,204 @@
+div {
+    box-sizing: border-box;
+}
+
+button {
+    border-radius: 7px;
+    border: none;
+    padding: 8px 12px 8px 12px;
+}
+
+textarea {
+    resize: none
+}
+
+/* 테이블 스타일 */
+thead {
+    background-color: #002572;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+}
+
+th {
+    width: 12rem;
+}
+
+td {
+
+    vertical-align: middle;
+    text-align: center;
+}
+
+input[type=radio] {
+    margin-right: 5px;
+}
+
+
+.textcenter {
+    text-align: center;
+}
+
+.fontSize {
+    font-size: 15px;
+}
+
+.loginbutton {
+    padding: 15px;
+    font-weight: 900;
+    text-align: center;
+}
+
+.height {
+    height: 100%;
+}
+
+.login-component {
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root {
+    margin-top: -5px;
+
+}
+
+a.fc-col-header-cell-cushion {
+    color: white;
+}
+
+.MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+    padding: 10px 32px 7.45px 14px;
+}
+
+.mainColor,
+.sideColor {
+    color: white;
+    background-color: #002572;
+}
+
+.sideColor:hover,
+.sideColor:active {
+    background-color: #001c57;
+
+}
+
+.searchinput {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.searchbutton {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.rightBorder{
+   border-right-width: 1px;
+   border-right-color: grey;
+   width:45%
+}
+
+.modal {
+    display: block;
+    position: fixed;
+    z-index: 15;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.closeButton:hover,
+.downloadButton:hover {
+    cursor: pointer;
+}
+
+.fleft {
+    float: left;
+}
+
+.fright {
+    float: right;
+}
+
+.background {
+    margin: 15px;
+}
+
+.search {
+    width: 40%;
+}
+
+.topmenubar {
+    margin: 15px 0px 15px 0px;
+}
+
+.location {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
+.datepicker-one {
+    width: 300px;
+    text-align: center;
+    padding: 8px 10px;
+    border-width: 1px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.table{
+    margin-bottom: 5px;
+}
+.table th{
+    background-color:#002572;
+    color: white;
+}
+.errorMessage {
+    margin-top: 5px;
+    color: red;
+    font-size: 13px;
+}
+.topcontents{
+
+}
+.middlecontents{
+   
+}
+.bottomcontents{
+    text-align: center;
+    bottom:0
+}
+@media screen and (max-width : 998px) {
+    .search {
+        width: 100%;
+    }
+
+    .datepicker {
+        width: 100%;
+    }
+
+    .inputnavbar {
+        margin: 15px 15px 0px 0px;
+    }
+    
+
+}
+
+@media screen and (max-width : 768px) {
+    * {
+        font-size: 12px;
+    }
+
+    th {
+        vertical-align: middle;
+
+    }
+
+    .datepicker-one {
+        height: 42px;
+    }
+
+    .location {
+        float: left;
+    }
+
+}

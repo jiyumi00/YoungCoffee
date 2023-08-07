@@ -32,3 +32,5 @@ export const SHADOW =
               elevation: 20,
               shadowColor: THEME.COLOR.BLUE_COLOR,
           };
+
+          
