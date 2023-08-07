@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, StatusBar} from 'react-native';
 import React, {Component} from 'react';
 import dayjs from 'dayjs';
 
@@ -53,6 +53,7 @@ export default class SettlementHeader extends Component {
   render() {
     return (
       <View style={styles.header}>
+         <StatusBar barStyle="dark-content" />
         {/* Alarm Icon */}
         <Image source={require('../../assets/images/alarm/alarm.png')} />
 

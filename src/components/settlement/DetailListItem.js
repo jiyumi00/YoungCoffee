@@ -126,6 +126,7 @@ export default class DetailListItem extends Component {
             </Text>
           </View>
 
+          <TouchableOpacity  onPress={this.onFolding} style={{flexDirection:'row'}} >
           <View style={styles.totalAmount}>
             <Text style={styles.totalAmountText} fontWeight={600}>
               {amountFormat(
@@ -135,7 +136,7 @@ export default class DetailListItem extends Component {
             </Text>
           </View>
 
-            <TouchableOpacity  onPress={this.onFolding} >
+            
             <View
             style={[
               styles.toggleIcon,
@@ -194,6 +195,7 @@ class HistoryListItem extends Component {
   };
 
   render() {
+    
     return (
       <>
         <DetailsSectionHeader title="급여" payTotal={this.props.report.total} />
@@ -236,6 +238,7 @@ class CompletedListItem extends Component {
   }
 
   render() {
+    console.log('detaillistitem item : ',this.item)
     return (
       <View style={completedStyles.historyWrap}>
         <View style={completedStyles.history}>
@@ -346,7 +349,7 @@ const styles = StyleSheet.create({
     borderStyle: Platform.OS === 'ios' ? 'solid' : 'dashed',
   },
   selectIcon:{
-    width:30,
-    height:30,
+    width:15,
+    height:15,
   }
 });

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, StatusBar} from 'react-native';
 
 // Components
 import CloseButton from '../common/CloseButton';
@@ -33,6 +33,7 @@ export default class SettingHeader extends Component {
 
     return (
       <View style={styles.header}>
+         <StatusBar barStyle="dark-content"/>
         <View style={styles.screenTitle}>
           <Text style={styles.screenTitleText} fontWeight={700}>
             {title}

@@ -1,15 +1,15 @@
-import React, {Component} from 'react';
-import {StyleSheet, View, Pressable} from 'react-native';
+import React, { Component } from 'react';
+import { StyleSheet, View, Pressable } from 'react-native';
 
 // constants
-import {THEME} from '../../constants/theme';
+import { THEME } from '../../constants/theme';
 
 // Components
 import Image from '../common/Image';
 import Text from '../common/Text';
 
 //Utils
-import {amountFormat} from '../../utils/AmountFormat';
+import { amountFormat } from '../../utils/AmountFormat';
 
 // Images
 const SettingIcon = require('../../assets/images/setting_icon/setting_icon.png');
@@ -23,6 +23,7 @@ export default class TimeListItem extends Component {
   }
 
   render() {
+    //console.log('timelistitem item : ',this.item);
     const hourly = parseInt(this.item.amount / 60);
     const minute = this.item.amount % 60;
     return (
@@ -40,14 +41,14 @@ export default class TimeListItem extends Component {
             )
           </Text>
         </View>
-
-        <View style={styles.historyAmount}>
-          <Text style={styles.historyAmountText} fontWeight={500}>
-            {amountFormat(this.item.total)}원
-          </Text>
-        </View>
-
         <Pressable style={styles.historySetting} onPress={this.modifyModal}>
+          <View style={styles.historyAmount}>
+            <Text style={styles.historyAmountText} fontWeight={500}>
+              {amountFormat(this.item.total)}원
+            </Text>
+          </View>
+
+          {/* <Pressable style={styles.historySetting} onPress={this.modifyModal}> */}
           <Image source={SettingIcon} style={styles.settingIcon} />
         </Pressable>
       </View>
@@ -78,15 +79,19 @@ const styles = StyleSheet.create({
   historyAmountText: {
     fontSize: 16,
     fontWeight: '500',
+    //alignItems:'center',
     color: THEME.COLOR.BLACK_COLOR,
   },
   historySetting: {
-    width:30,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+
+
   },
   settingIcon: {
-    width: 30,
-    height: 30,
+    width: 17,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    height: 17,
   },
 });

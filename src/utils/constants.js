@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class Constant {
-    static serviceURL = "http://203.241.251.177/ycoffee";
-
+    //static serviceURL = "http://203.241.251.177/ycoffee";
+    static serviceURL = "http://test.ycoffee.kr/ycoffee";
     static async getUserInfo() {
         const userInfo = await AsyncStorage.getItem("userInfo");
         if(userInfo!=null) {

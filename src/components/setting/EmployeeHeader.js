@@ -43,8 +43,7 @@ export default class EmployeeHeader extends Component {
   render() {
     return (
       <SafeAreaView edges={['top']} style={styles.header}>
-        <StatusBar barStyle="light-content" />
-
+       
         {/* Screen Title */}
         <View style={styles.screenTitle}>
           <Pressable style={styles.backButton} onPress={this.navigation.goBack}>
@@ -99,9 +98,11 @@ export default class EmployeeHeader extends Component {
 // Styles
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: THEME.COLOR.MAIN_COLOR,
+    //backgroundColor: THEME.COLOR.MAIN_COLOR,
+    
   },
   screenTitle: {
+    backgroundColor: THEME.COLOR.MAIN_COLOR,
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
@@ -147,6 +148,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   tabs: {
+    backgroundColor: THEME.COLOR.MAIN_COLOR,
     paddingHorizontal: 25,
     paddingVertical: 15,
     flexDirection: 'row',
