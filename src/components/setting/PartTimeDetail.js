@@ -72,14 +72,12 @@ export default class PartTimeDetail extends Component {
   };
 
   async callGetEmployeeDetailAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL +
-        '/GetEmployeeDetail?employee_id=' +
-        this.props.route.params.employeeID,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL+'/GetEmployeeDetail?employee_id='+this.props.route.params.employeeID);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {
@@ -138,10 +136,7 @@ class BaseInfo extends Component {
   //전화번호 수정 (수정 후 상위 클래스에서 refresh)
   getPhoneNumber = phoneNumber => {
     this.setState({phoneModalVisible: false});
-    this.callModifyDailyEmployeeAPI(
-      phoneNumber,
-      this.state.isActivate ? 1 : 0,
-    ).then(response => {
+    this.callModifyDailyEmployeeAPI(phoneNumber,this.state.isActivate ? 1 : 0).then(response => {
       this.props.refreshListener();
       if (response.success == 0)
         Alert.alert('정보수정', '정보수정에 실패했습니다');
@@ -158,7 +153,8 @@ class BaseInfo extends Component {
     this.setState({salaryModalVisible: false});
     this.callModifyDailyPayAPI(date, pay).then(response => {
       this.props.refreshListener();
-      if (response.success <= 0) Alert.alert('시급수정', response.message);
+      if (response.success <= 0) 
+        Alert.alert('시급수정', response.message);
     });
   };
 
@@ -171,8 +167,7 @@ class BaseInfo extends Component {
   getActivate = activate => {
     console.log('activate=', activate);
     this.setState({activateModalVisible: false, isActivate: activate});
-    this.callModifyDailyEmployeeAPI(this.tel, activate ? 1 : 0).then(
-      response => {
+    this.callModifyDailyEmployeeAPI(this.tel, activate ? 1 : 0).then(response => {
         this.props.refreshListener();
         if (response.success == 0)
           Alert.alert('정보수정', '정보수정에 실패했습니다');
@@ -185,11 +180,7 @@ class BaseInfo extends Component {
   };
 
   async callModifyDailyPayAPI(date, pay) {
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/ModifyDailyPay',
-      'post',
-    );
-
+    let manager = new WebServiceManager(Constant.serviceURL + '/ModifyDailyPay','post');
     const formData = {
       employeeID: this.props.item.id,
       startDate: dayjs(date).format('YYYY-MM-DD'),
@@ -198,16 +189,14 @@ class BaseInfo extends Component {
 
     manager.addFormData('data', formData);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   async callModifyDailyEmployeeAPI(tel, validate) {
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/ModifyDailyEmployee',
-      'post',
-    );
-
+    let manager = new WebServiceManager(Constant.serviceURL + '/ModifyDailyEmployee','post');
     const formData = {
       employeeID: this.props.item.id,
       tel: tel,
@@ -216,8 +205,10 @@ class BaseInfo extends Component {
 
     manager.addFormData('data', formData);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {
@@ -331,7 +322,8 @@ class BaseInfo extends Component {
         )}
         {this.state.activateModalVisible && (
           <ModifyActivationModal
-            data={this.state.isActivate}
+            isActivate={this.state.isActivate}
+            name={this.props.item.name}
             okButtonListener={this.getActivate}
             cancelButtonListener={() =>
               this.cancelButtonListener({activateModalVisible: false})

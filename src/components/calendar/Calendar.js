@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScrollView, View, RefreshControl, Platform} from 'react-native';
+import {ScrollView, View, RefreshControl, Platform, Dimensions} from 'react-native';
 import {Calendar as RNCalendar, LocaleConfig} from 'react-native-calendars';
 import dayjs from 'dayjs';
 
@@ -38,62 +38,38 @@ export default class Calendar extends Component {
 
   //해당월에 일한 목록 불러오기
   goWorkedList = date => {
-    // (희애) 이전 달의 데이터도 가져와야하기 때문에 우선 적으로 프론트에서 2번 요청 보내는 형식으로 처리
-    Constant.getUserInfo()
-      .then(response => {
-        // 유저 아이디
+    Constant.getUserInfo().then((response) => {
         this.userID = response.userID;
-
-        // 이전 달 날짜
-        const prevMonthDate = dayjs(date).subtract(1, 'M').format('YYYY-MM-DD');
-        const nextMonthDate = dayjs(date).add(1, 'M').format('YYYY-MM-DD');
-
-        // 이전 달, 이번 달, 다음 달 데이터 요청
-        return new Promise.all([
-          this.callGetWorkedListAPI(prevMonthDate),
-          this.callGetWorkedListAPI(date),
-          this.callGetWorkedListAPI(nextMonthDate),
-        ]);
-      })
-      .then(response => {
-        // 순서는 요청 보낸 순서대로 배열에 저장됨
-        this.setState({
-          contents: Object.assign(...response),
+        this.callGetWorkedListAPI(date).then((response) => {
+        this.setState({contents: response})
         });
-      })
-      .catch(error => {
-        console.error('선택한 달의 일한 직원 목록 가져오기 API 실패', error);
       });
   };
 
   //월 변경시
-  onMonthChanged = date => {
+  onMonthChanged = (date) => {
     this.setState({date: date.dateString}, () => {
       this.goWorkedList(this.state.date);
     });
   };
 
   //날짜 선택시
-  onDateClicked = date => {
+  onDateClicked = (date) => {
     this.props.navigation.navigate('ReportDetail', {date});
   };
 
   async callGetWorkedListAPI(todate) {
-    let manager = new WebServiceManager(
-      Constant.serviceURL +
-        '/GetWorkedList?user_id=' +
-        this.userID +
-        '&day=' +
-        todate,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL+'/GetWorkedList?user_id='+this.userID+'&day='+todate);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {
     return (
-      <View style={{flex: 1}}>
+      <View style={{ flex:1,height:Dimensions.get('window').height/2}}>
         <ScrollView
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
@@ -120,7 +96,6 @@ export default class Calendar extends Component {
                 date={date}
                 state={state}
                 data={marking}
-                thisMonth={this.state.date}
                 onDateClickListener={date => this.onDateClicked(date)}
               />
             )}

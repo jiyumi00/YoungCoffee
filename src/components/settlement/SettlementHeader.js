@@ -53,7 +53,7 @@ export default class SettlementHeader extends Component {
   render() {
     return (
       <View style={styles.header}>
-         <StatusBar barStyle="dark-content" />
+         
         {/* Alarm Icon */}
         <Image source={require('../../assets/images/alarm/alarm.png')} />
 

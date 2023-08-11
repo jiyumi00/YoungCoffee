@@ -66,8 +66,9 @@ export default class SettlementDetail extends Component {
   }
 
   //정산완료되지 않은 데이터에서 아르바이트 시간 수정 선택시
-  onModifyListener = item => {
-    this.props.navigation.navigate('ModifyWorkTimeModal', {data: item});
+  onModifyListener = (item,employeeName) => {
+    console.log('modify Work Time modal item data = ',item,employeeName);
+    this.props.navigation.navigate('ModifyWorkTimeModal', {data: item, employeeName:employeeName});
   };
 
   //마감신청 버튼 클릭시 급여지급일 선택 DatePicker 모달 실행
@@ -80,7 +81,7 @@ export default class SettlementDetail extends Component {
   };
 
   //급여지급일 선택완료하면 마감 신청 실행
-  onDateSelectedListener = value => {
+  onDateSelectedListener = (value) => {
     this.setState({payDay: value});
     this.goSetCompleteConfirmAlert();
   };
@@ -163,7 +164,7 @@ export default class SettlementDetail extends Component {
               key={item}
               complete={this.item.complete}
               date={this.item.date}
-              onModifyListener={item => this.onModifyListener(item)}
+              onModifyListener={(item,employeeName) => this.onModifyListener(item,employeeName)}
             />
           )}
         />
@@ -198,47 +199,33 @@ export default class SettlementDetail extends Component {
 
   //정산한 월에 대한 내역 가져옴(사람이름과 금액)
   async callGetCompletedSettlementAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL +
-        '/GetCompletedSettlement?user_id=' +
-        this.userID +
-        '&day=' +
-        this.item.date,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL +'/GetCompletedSettlement?user_id=' +this.userID +'&day=' +this.item.date);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   //아직 정산하지 않은 내역 가져옴(사람이름과 금액)
   async callGetSettlementAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL +
-        '/GetSettlement?user_id=' +
-        this.userID +
-        '&day=' +
-        this.item.date,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL +'/GetSettlement?user_id=' +this.userID +'&day=' +this.item.date);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   //마감신청 API
   async callSetCompleteAPI() {
     const payDay = dayjs(this.state.payDay).format('YYYY-MM-DD');
-    let manager = new WebServiceManager(
-      Constant.serviceURL +
-        '/SetComplete?user_id=' +
-        this.userID +
-        '&day=' +
-        this.item.date +
-        '&pay_day=' +
-        payDay,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL +'/SetComplete?user_id=' +this.userID +'&day=' +this.item.date +'&pay_day=' +payDay);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 }
 

@@ -82,34 +82,26 @@ export default class DetailListItem extends Component {
   };
 
   async callGetHolidayListAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL +
-        '/GetHolidayList?employee_id=' +
-        this.item.employee.id +
-        '&day=' +
-        this.date,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL +'/GetHolidayList?employee_id=' +this.item.employee.id +'&day=' +this.date);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   async callGetWorkedTimeListAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL +
-        '/GetWorkedTimeList?employee_id=' +
-        this.item.employee.id +
-        '&day=' +
-        this.date,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL +'/GetWorkedTimeList?employee_id=' +this.item.employee.id +'&day=' +this.date);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
-  onModifyListener = item => {
-    console.log('modify listener clicked....in Detail List Item', item);
-    this.props.onModifyListener(item);
+  onModifyListener = (item) => {
+    console.log('modify listener clicked....in Detail List Item', item, this.item.employee.name);
+    this.props.onModifyListener(item,this.item.employee.name);
   };
 
   render() {
@@ -129,11 +121,7 @@ export default class DetailListItem extends Component {
           <TouchableOpacity  onPress={this.onFolding} style={{flexDirection:'row'}} >
           <View style={styles.totalAmount}>
             <Text style={styles.totalAmountText} fontWeight={600}>
-              {amountFormat(
-                parseInt((this.item.total + this.item.holidayPay) / 10) * 10,
-              )}
-              원
-            </Text>
+              {amountFormat(parseInt((this.item.total + this.item.holidayPay) / 10) * 10)}원</Text>
           </View>
 
             

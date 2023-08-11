@@ -59,11 +59,6 @@ export default class CustomDay extends Component {
   };
 
   render() {
-    // (희애) Today이면서 disabled 상태인 경우 라이브러리에서 자동으로 체크해주지 않아 해당 조건으로 체크
-    const isTodayDisabled =
-      this.props.state === 'today' &&
-      dayjs(this.props.thisMonth).month() === this.props.date.month;
-
     return (
       <Pressable style={styles.dayButton} onPress={() => this.onPressDay()}>
         {/* Date */}
@@ -71,10 +66,7 @@ export default class CustomDay extends Component {
           style={[
             styles.day,
             this.props.state === 'today' ? styles.today : null,
-            // (희애) 추가
-            this.props.state === 'disabled' || isTodayDisabled
-              ? styles.disabledButton
-              : null,
+            this.props.state === 'disabled' ? styles.disabledButton : null,
           ]}>
           <Text
             style={[

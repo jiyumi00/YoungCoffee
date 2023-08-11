@@ -18,12 +18,12 @@ export default class EmployeeManager extends Component {
   }
 
   changeEmployeeKind = kind => {
-    console.log('employee kind=', kind);
+    //console.log('employee kind=', kind);
     this.setState({employeeKind: kind});
   };
 
   addEmployee = () => {
-    console.log('add Employee');
+    //console.log('add Employee');
     this.props.navigation.navigate('AddEmployee');
   };
 

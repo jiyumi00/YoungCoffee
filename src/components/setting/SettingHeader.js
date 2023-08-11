@@ -8,6 +8,29 @@ import Text from '../common/Text';
 // Constants
 import {THEME} from '../../constants/theme';
 
+export default class SettingHeader extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const title = this.props.title;
+
+    return (
+      <View style={styles.header}>
+        <View style={styles.screenTitle}>
+          <Text style={styles.screenTitleText} fontWeight={700}>
+            {title}
+          </Text>
+        </View>
+
+        <CloseButton style={styles.closeBtnPosition} />
+      </View>
+    );
+  }
+}
+
+
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
@@ -22,26 +45,3 @@ const styles = StyleSheet.create({
     color: THEME.COLOR.MAIN_COLOR,
   },
 });
-
-export default class SettingHeader extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const title = this.props.title;
-
-    return (
-      <View style={styles.header}>
-         <StatusBar barStyle="dark-content"/>
-        <View style={styles.screenTitle}>
-          <Text style={styles.screenTitleText} fontWeight={700}>
-            {title}
-          </Text>
-        </View>
-
-        <CloseButton style={styles.closeBtnPosition} />
-      </View>
-    );
-  }
-}

@@ -31,7 +31,7 @@ export default class EmployeeHeader extends Component {
     if (kind == 'fullTime')
       Alert.alert('직원관리', '현재 정직원 관리는 사용할 수 없습니다');
     else {
-      this.setState({isFullTime: !this.state.isFullTime});
+      //this.setState({isFullTime: !this.state.isFullTime});
       this.props.changeEmployeeKindListener(kind);
     }
   };

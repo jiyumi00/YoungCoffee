@@ -8,7 +8,8 @@ import {
   Alert,
   Platform,
   ScrollView,
-  Dimensions
+  Dimensions,
+  TouchableHighlightBase
 } from 'react-native';
 import dayjs from 'dayjs';
 
@@ -44,7 +45,8 @@ export default class ModifyWorkTimeModal extends Component {
     super(props);
 
     this.data = this.props.route.params.data;
-    console.log('item data in  아르바이트 시간 수정 모달 = ', this.data);
+    this.employeeName=this.props.route.params.employeeName;
+    //console.log('item data in  아르바이트 시간 수정 모달 = ', this.data);
     const [startHour, startMinute] = this.data.start.split(':');
     const [endHour, endMinute] = this.data.end.split(':');
 
@@ -56,8 +58,8 @@ export default class ModifyWorkTimeModal extends Component {
     this.endDate = this.endDate.set('hour', endHour);
     this.endDate = this.endDate.set('minute', endMinute);
 
-    console.log('modify start date = ', this.startDate);
-    console.log('modify end date = ', this.endDate);
+    //console.log('modify start date = ', this.startDate);
+    //console.log('modify end date = ', this.endDate);
 
     this.state = {
       startDate: this.startDate,
@@ -75,13 +77,10 @@ export default class ModifyWorkTimeModal extends Component {
   };
 
   submit = () => {
-    if (
-      dayjs(this.state.startTime).format('HH-mm') >=
-        dayjs(this.state.endTime).format('HH-mm') ||
-      parseInt(this.state.pay) <= 0 ||
-      this.state.pay.toString().length == 0 ||
-      isNaN(this.state.pay)
-    )
+    if(dayjs(this.state.startTime).format('HH-mm') >= dayjs(this.state.endTime).format('HH-mm') || 
+        parseInt(this.state.pay) <= 0 ||
+        this.state.pay.toString().length == 0 || 
+        isNaN(this.state.pay))
       Alert.alert('입력오류', '시간 또는 금액이 잘못되었습니다');
     else {
       this.callModifyWorkedTimeAPI().then(response => {
@@ -128,11 +127,7 @@ export default class ModifyWorkTimeModal extends Component {
 
   //{"id":28,"startDate":"2023-07-02","start":"10:00","end":"17:00","pay":9620}
   async callModifyWorkedTimeAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/ModifyWorkedTime',
-      'post',
-    );
-
+    let manager = new WebServiceManager(Constant.serviceURL + '/ModifyWorkedTime','post');
     const formData = {
       id: this.data.id,
       startDate: dayjs(this.data.startDate).format('YYYY-MM-DD'),
@@ -145,13 +140,13 @@ export default class ModifyWorkTimeModal extends Component {
     console.log('final form data = ', formData);
 
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {
-    console.log('name',this.data)
-    console.log('isDate',this.state.isDatePickerVisible)
     let displayedTime = null;
     if (this.state.selectedTime == 'start')
       displayedTime = this.state.startTime;
@@ -181,7 +176,7 @@ export default class ModifyWorkTimeModal extends Component {
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.headerText} fontWeight={500}>
-                {this.data.name}님의
+                {this.employeeName} 님의
               </Text>
               <Text style={styles.headerText} fontWeight={500}>
                 <Text style={styles.headerPointText} fontWeight={600}>

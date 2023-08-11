@@ -38,17 +38,17 @@ export default class SettlementHome extends Component {
   }
 
   async callGetSettlementListAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/GetSettlementList?user_id=' + this.userID,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL + '/GetSettlementList?user_id=' + this.userID);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   getSettlementList = () => {
     this.callGetSettlementListAPI().then(response => {
-      console.log('settlement list = ', response);
+      //console.log('settlement list = ', response);
       this.setState({contents: response});
     });
   };
@@ -63,8 +63,7 @@ export default class SettlementHome extends Component {
   render() {
     return (
       <SafeAreaView
-        style={homeStyles.container}
-        edges={['right', 'bottom', 'left', 'top']}>
+        style={homeStyles.container} edges={['right', 'bottom', 'left', 'top']}>
         <Insets>
           {/* Header - 이번 달 마감 날짜 표시 */}
           <SettlementHeader />

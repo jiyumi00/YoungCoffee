@@ -70,9 +70,8 @@ export default class PartTimeList extends Component {
     );
   }
 
-  renderItem = item => {
-    //const date = dayjs(item.createdAt).format('YYYY. MM. DD');
-    //const annualIncome = fullTimeEmployee ? item.annualIncome : amountFormat(item.annualIncome);
+  renderItem = (item) => {
+    //활성화된 직원일 경우 진하게 표시
     return (
       <Pressable
         style={[styles.employee]}
@@ -81,8 +80,7 @@ export default class PartTimeList extends Component {
         <View style={styles.employeeName}>
           <Text
             style={[
-              styles.employeeNameText,
-              !item.active ? styles.deactivationText : null,
+              styles.employeeNameText, styles.deactivationText,
               item.validate === 1 && {color: 'black'},
             ]}
             fontWeight={500}>
@@ -90,39 +88,33 @@ export default class PartTimeList extends Component {
           </Text>
           <Image source={LinkIcon} style={styles.linkIcon} />
         </View>
-
-        {/* 
-            - 입사일, 연봉
-            - 활성화된 직원일 경우에만 정보 표시
-             */}
-
-        {/*{item.active && ( */}
-        {true && (
-          <View style={styles.employeeInfo}>
-            <View style={styles.createdAt}>
-              <Text
-                style={[
-                  styles.employeeInfoText,
-                  item.validate === 1 && styles.activeEmployeeInfoText,
-                ]}>
-                {item.startDate}
-              </Text>
-            </View>
-            <View style={[styles.line]} />
-            <View style={[styles.annualIncome]}>
-              <Text
-                style={[
-                  styles.employeeInfoText,
-                  item.validate === 1 && styles.activeEmployeeInfoText,
-                  {
-                    textAlign: 'right',
-                  },
-                ]}>
-                {amountFormat(item.pay)}원
-              </Text>
-            </View>
+      
+        <View style={styles.employeeInfo}>
+          <View style={styles.createdAt}>
+            <Text
+              style={[
+                styles.employeeInfoText,
+                item.validate === 1 && styles.activeEmployeeInfoText,
+              ]}>
+              {item.startDate}
+            </Text>
           </View>
-        )}
+          <View style={[styles.line]} />
+          
+          <View style={[styles.annualIncome]}>
+            <Text
+              style={[
+                styles.employeeInfoText,
+                item.validate === 1 && styles.activeEmployeeInfoText,
+                {
+                  textAlign: 'right',
+                },
+              ]}>
+              {amountFormat(item.pay)}원
+            </Text>
+          </View>
+        </View>
+       
       </Pressable>
     );
   };
