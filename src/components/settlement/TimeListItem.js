@@ -12,8 +12,7 @@ import Text from '../common/Text';
 import { amountFormat } from '../../utils/AmountFormat';
 
 // Images
-const SettingIcon = require('../../assets/images/setting_icon/setting_icon.png');
-
+const ModifyIcon = require('../../assets/images/modify_icon/modify_icon.png');
 //일한 시간 리스트의 각 항목
 export default class TimeListItem extends Component {
   constructor(props) {
@@ -50,7 +49,7 @@ export default class TimeListItem extends Component {
           </View>
 
           {/* <Pressable style={styles.historySetting} onPress={this.modifyModal}> */}
-          <Image source={SettingIcon} style={styles.settingIcon} />
+          <Image source={ModifyIcon} style={styles.settingIcon} />
         </Pressable>
       </View>
     );
@@ -94,5 +93,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
     height: 17,
+    marginLeft:5
   },
 });

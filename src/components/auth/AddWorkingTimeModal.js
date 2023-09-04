@@ -7,7 +7,8 @@ import {
   Alert,
   Keyboard,
   TouchableWithoutFeedback,
-  ScrollView
+  ScrollView,
+  StatusBar
 } from 'react-native';
 import dayjs from 'dayjs';
 
@@ -66,11 +67,13 @@ export default class AddWorkingTimeModal extends Component {
   };
 
   render() {
+    const statusBarHeight=StatusBar.currentHeight;
     return (
-      <ScrollView>
-      <KeyboardAvoidingView behavior={keyboardBehavior} style={{flex: 1}}>
+     
+      <KeyboardAvoidingView behavior={keyboardBehavior} style={{flex: 1,}}>
         <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss();}}>
-          <View style={{flex: 1, justifyContent: 'flex-end', backgroundColor:'#000d2915'}}>
+        <ScrollView>
+          <View style={{flex: 1, justifyContent: 'flex-end', backgroundColor:'#000d2915',marginTop:statusBarHeight + 20}}>
             {/* <ModalContainer onClose={() => this.props.navigation.goBack()}> */}
             {/* 헤더 */}
             <View style={[styles.header]}>
@@ -129,9 +132,11 @@ export default class AddWorkingTimeModal extends Component {
           
             {/* </ModalContainer> */}
           </View>
+          </ScrollView>
         </TouchableWithoutFeedback>
+        
       </KeyboardAvoidingView>
-      </ScrollView>
+    
     );
   }
 }
@@ -660,6 +665,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {position: 'absolute', right: 30, top: 25},
   header: {
+    
     paddingTop: 25,
     flexDirection: 'row',
     alignItems: 'center',
@@ -705,5 +711,9 @@ const styles = StyleSheet.create({
     fontSize: 21,
     color: THEME.COLOR.MAIN_COLOR,
   },
-  form: {},
+  form: {
+    paddingTop:15,
+    borderTopColor:THEME.COLOR.LIGHT_GRAY,
+    borderTopWidth:1,
+  },
 });

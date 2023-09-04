@@ -160,6 +160,11 @@ export default class ModifyWorkTimeModal extends Component {
           bottomInset
           buttons={[
             {
+              id: 2,
+              label: '근무삭제',
+              //onPress: this.onSubmit,
+            },
+            {
               id: 0,
               label: '취소',
               onPress: this.onClose,
@@ -169,6 +174,7 @@ export default class ModifyWorkTimeModal extends Component {
               label: '확인',
               onPress: this.onSubmit,
             },
+            
           ]}
           onClose={this.onClose}>
           
@@ -254,6 +260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    marginTop:20,
   },
   headerText: {
     fontSize: 17,

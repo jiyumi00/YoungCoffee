@@ -245,21 +245,25 @@ export default class SettlementDetail extends Component {
         {complete === 0 && (
           <SafeAreaView
             edges={['bottom']}
-            style={{backgroundColor: THEME.COLOR.MAIN_COLOR}}>
-            {this.state.confirmContents.length==0 && (
-              <TouchableOpacity
-                style={styles.deadlineButton}
-                activeOpacity={0.8}
-                onPress={this.requestConfirm}>
-                <Text style={styles.deadlineButtonText}>급여명세서 전송</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              style={styles.deadlineButton}
-              activeOpacity={0.8}
-              onPress={this.setCompleteButtonClicked}>
-              <Text style={styles.deadlineButtonText}>마감 신청</Text>
-            </TouchableOpacity>
+            >
+              <View style={this.state.confirmContents.length==0 &&styles.buttonView}>
+              {this.state.confirmContents.length==0 && (
+             <TouchableOpacity
+               style={[styles.deadlineButton2,{borderRightWidth:1,borderRightColor:'white'}]}
+               activeOpacity={0.8}
+               onPress={this.requestConfirm}>
+               <Text style={styles.deadlineButtonText}>급여명세서 전송</Text>
+             </TouchableOpacity>
+           ) }
+           <TouchableOpacity
+           style={this.state.confirmContents.length==0 ? styles.deadlineButton2:styles.deadlineButton}
+           activeOpacity={0.8}
+           onPress={this.setCompleteButtonClicked}>
+           <Text style={styles.deadlineButtonText}>마감 신청</Text>
+         </TouchableOpacity>
+              </View>
+          
+          
           </SafeAreaView>
         )}
 
@@ -377,6 +381,18 @@ const styles = StyleSheet.create({
   },
   listFooter: {
     height: 40,
+  },
+  buttonView:{
+    flexDirection:'row', 
+    justifyContent:'center'
+  },
+  deadlineButton2:{
+
+    height: 60,
+    width:'50%',
+    backgroundColor: THEME.COLOR.MAIN_COLOR,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   deadlineButton: {
     height: 60,

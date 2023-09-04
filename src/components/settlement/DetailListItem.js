@@ -27,6 +27,7 @@ import {historyType} from '../../constants/settlement';
 // Utils
 import {amountFormat} from '../../utils/AmountFormat';
 import DetailsSectionHeader from './DetailSectionHeader';
+import { ThemeProvider } from '@react-navigation/native';
 
 // Images
 const SelectIcon = require('../../assets/images/select_icon/select_icon.png');
@@ -123,9 +124,10 @@ export default class DetailListItem extends Component {
             
             {this.complete==0 && (
             <Text style={styles.userNameText}>
+              {console.log('confirmContents',this.confirmContents)}
               {this.confirmContents.length!=0 && this.confirmContents.map((item)=> {
                 if(item.id==this.item.employee.id)
-                  return item.status;
+                  return <View key={item} style={item.status==0 ?styles.statusCheck:[styles.statusCheck,{backgroundColor:THEME.COLOR.MAIN_COLOR}]}></View>
               })}
             </Text>)}       
           </View>
@@ -303,6 +305,7 @@ const completedStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
+ 
 });
 
 // Styles
@@ -328,6 +331,7 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     fontWeight: '400',
     color: THEME.COLOR.BLACK_COLOR,
+    marginRight:5,
   },
   totalAmount: {},
   totalAmountText: {
@@ -352,5 +356,11 @@ const styles = StyleSheet.create({
   selectIcon:{
     width:15,
     height:15,
-  }
+  },
+  statusCheck:{
+    width:8,
+    height:8,
+    borderRadius:10,
+    backgroundColor:THEME.COLOR.GRAY_COLOR
+  },
 });

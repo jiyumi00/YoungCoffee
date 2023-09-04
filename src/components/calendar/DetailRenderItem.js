@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View,TouchableOpacity,Image} from 'react-native';
 import React, {Component} from 'react';
 import {THEME} from '../../constants/theme';
 import DailyBar from './DailyBar';
@@ -9,7 +9,7 @@ import Text from '../common/Text';
 //Utils
 import {amountFormat} from '../../utils/AmountFormat';
 
-
+const DeleteIcon = require('../../assets/images/delete_icon/delete_icon.png');
 
 /*********************************************** */
 //각 직원의 근무한 내역 로드되는 클래스
@@ -96,6 +96,8 @@ const styles = StyleSheet.create({
   },
   name: {
     marginBottom: 8,
+    flex:1,
+    flexDirection:'row'
   },
   nameText: {
     fontSize: 18,

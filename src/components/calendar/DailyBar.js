@@ -4,7 +4,7 @@ import {THEME} from '../../constants/theme';
 import Text from '../common/Text';
 import Image from '../common/Image';
 
-const SettingIcon = require('../../assets/images/setting_icon/setting_icon.png');
+const ModifyIcon = require('../../assets/images/modify_icon/modify_icon.png');
 
 //근무한 시간량을 Bar형태로 보여주기
 export default class DailyBar extends Component {
@@ -46,27 +46,38 @@ export default class DailyBar extends Component {
 
     return (
       <>
-        <Text style={styles.dailyText}>
+      <View style={styles.timebox}>
+      <Text style={styles.dailyText}>
           {item.start} - {item.end}
         </Text>
+        <TouchableOpacity onPress={()=>this.modifyWorkTime(item)} style={{paddingLeft:10}}>
+          <Image source={ModifyIcon} style={styles.settingIcon} />
+        </TouchableOpacity>
+       
+      </View>
+       
         <View style={[styles.boxes]}>
           <View
             style={[
               (styles.boxes.width = blockSize),
               (styles.boxes.backgroundColor = barColor[index]),
             ]}>
-            {minute != 0 ? (
+            {item.amount>=60 && (
+             minute != 0 ? (
               <Text style={styles.boxesText}>
-                {hourly}시간 {minute}분
+                {hourly}:{minute}
               </Text>
             ) : (
-              <Text style={styles.boxesText}>{hourly}시간</Text>
-            )}
+              <Text style={styles.boxesText}>{hourly}:00</Text>
+            ))
+            
+            }
+           
           </View>
         </View>
-        <TouchableOpacity onPress={()=>this.modifyWorkTime(item)}>
+      {/*   <TouchableOpacity onPress={()=>this.modifyWorkTime(item)}>
           <Image source={SettingIcon} style={styles.settingIcon} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </>
     );
   };
@@ -76,6 +87,10 @@ const barColor = ['#18ABA1', '#E868A0', '#295CC5'];
 
 // Styles
 const styles = StyleSheet.create({
+  timebox:{
+    flexDirection:'row', 
+    paddingBottom:10
+  },
   container: {
     width: '100%',
   },
@@ -110,9 +125,9 @@ const styles = StyleSheet.create({
     color: THEME.COLOR.WHITE_COLOR,
   },
   settingIcon: {
-    width: 17,
+    width: 19,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    height: 17,
+    height: 19,
   },
 });

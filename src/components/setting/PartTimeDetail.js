@@ -401,7 +401,7 @@ class AdditionalInfo extends Component {
   goRemoveDailyPayAlert = (item) => {
     Alert.alert(
       '시급삭제',
-      item.startDate+'부터 적용되는 시급 '+item.pay+'원을 삭제할까요?',
+      item.startDate+`부터 적용되는 시급 ${amountFormat(item.pay)}원을 삭제할까요?`,
       [
         {text: '취소', onPress: () => {}},
         {
