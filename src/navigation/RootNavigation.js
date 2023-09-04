@@ -22,8 +22,8 @@ import ModifyActivationModal from '../components/setting/ModifyActivationModal';
 
 import SelectViewTypeModal from '../components/calendar/SelectViewTypeModal';
 import AddEmployee from '../components/setting/AddEmployee';
-import QuickAddPartTime from '../components/auth/QuickAddPartTime';
-import AddPartTimeModal from '../components/auth/AddPartTimeModal';
+import QuickAddWorkingTime from '../components/auth/QuickAddWorkingTime';
+import AddWorkingTimeModal from '../components/auth/AddWorkingTimeModal';
 
 import BonusModifierModalScreen from '../screens/modal/BonusModifierModalScreen';
 import ModifyWorkTimeModal from '../components/settlement/ModifyWorkTimeModal';
@@ -59,12 +59,12 @@ export default class RootNavigation extends Component {
               animation: 'fade',
             }}>
             <Stack.Screen
-              name="QuickAddPartTime"
-              component={QuickAddPartTime}
+              name="QuickAddWorkingTime"
+              component={QuickAddWorkingTime}
             />
             <Stack.Screen
-              name="AddPartTimeModal"
-              component={AddPartTimeModal}
+              name="AddWorkingTimeModal"
+              component={AddWorkingTimeModal}
             />
 
             <Stack.Screen

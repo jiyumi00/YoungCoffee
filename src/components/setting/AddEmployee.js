@@ -74,24 +74,22 @@ export default class AddEmployee extends Component {
   onValidForm = value => {
     this.setState(value, () => {
       let isValidForm = true;
-      if (this.state.name.trim().length == 0) isValidForm = false;
+      if (this.state.name.trim().length == 0) 
+        isValidForm = false;
       if (this.state.cNumber.trim().replaceAll('-', '').length < 13)
         isValidForm = false;
       if (this.state.tel.trim().replaceAll('-', '').length < 11)
         isValidForm = false;
-      if (
-        this.state.pay <= 0 ||
-        this.state.displayedPay.trim().length == 0 ||
-        isNaN(this.state.pay)
-      )
+      if (this.state.pay <= 0 || this.state.displayedPay.trim().length == 0 || isNaN(this.state.pay))
         isValidForm = false;
+
       this.setState({isValidForm: isValidForm});
     });
   };
   //date하나밖에 없기때문에 바로 this.state.date에다가 넣음
   onSelectedListener = value => {
     this.setState({date: value});
-    console.log('case date = ', this.state.date);
+    //console.log('case date = ', this.state.date);
   };
 
   bonusToggleClicked() {
@@ -106,11 +104,10 @@ export default class AddEmployee extends Component {
     Constant.getUserInfo().then(response => {
       this.userID = response.userID;
       this.callAddDailyEmployeeAPI().then(response => {
-        console.log('아르바이트 직원등록 완료 후 메시지 = ', response);
+        //console.log('아르바이트 직원등록 완료 후 메시지 = ', response);
+        Alert.alert('직원등록', response.message);
         if (response.success == 1)
-          Alert.alert('직원등록', '직원등록이 성공적으로 되었습니다');
-        else Alert.alert('직원등록', '직원등록에 실패하였습니다');
-        this.props.navigation.goBack();
+          this.props.navigation.goBack();        
       });
     });
   }
@@ -145,10 +142,7 @@ export default class AddEmployee extends Component {
 
   //{"userID":2,"name":"이순신","tel":"01077778888","cNumber":"0112313845678","startDate":"2023-07-01","pay":9620,"foreigner":0}
   async callAddDailyEmployeeAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/AddDailyEmployee',
-      'post',
-    );
+    let manager = new WebServiceManager(Constant.serviceURL + '/AddDailyEmployee','post');
 
     const formData = {
       userID: this.userID,
@@ -161,10 +155,12 @@ export default class AddEmployee extends Component {
     };
 
     manager.addFormData('data', formData);
-
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {

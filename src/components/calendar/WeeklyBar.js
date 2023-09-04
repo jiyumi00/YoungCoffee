@@ -83,20 +83,6 @@ export default class WeeklyBar extends Component {
           ))}
       </View>
     );
-
-    /*
-        return (
-            <View style={[thisWeek === 0?{opacity:0.4}:{backgroundColor:barColor[index%3]},{backgroundColor:barColor[index%3], width:this.boxSize, height:25,alignItems:'center',justifyContent:'center' }]} key={index}>
-                {exist && (
-                   minute!=0 ? (
-                    <Text style={styles.boxesText}>{hourly}:{minute}</Text>
-                ):(
-                    <Text style={styles.boxesText}>{hourly}:00</Text>
-                )
-                )}               
-            </View>
-        );
-        */
   };
 }
 

@@ -49,15 +49,13 @@ export default class DatePicker extends Component {
         buttons={[
           {
             id: 0,
-            label: '확인',
-            onPress: () => {
-              this.okButtonClicked();
-            },
+            label: '취소',
+            onPress: this.onClose
           },
           {
             id: 1,
-            label: '취소',
-            onPress: this.onClose,
+            label: '확인',
+            onPress: ()=>this.okButtonClicked()
           },
         ]}>
         {this.title != '' && (

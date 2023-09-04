@@ -18,11 +18,16 @@ import {THEME} from '../../constants/theme';
 import Constant from '../../utils/constants';
 
 // Data
-import {TEST_SETTLEMENT_LIST} from '../../data/testData';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 // Images
 const SelectIcon = require('../../assets/images/select_icon/select_icon.png');
+
+/*********************************** */
+//카렌다에서 날짜를 터치했을 경우 로드되는 클래스
+//근무한 직원들의 일, 주, 월 단위로 상세보기
+//각 직원당 DetailRenderItem를 클래스 호출(FlatList)
+/******************************************** */
 
 export default class ReportDetail extends Component {
   constructor(props) {
@@ -56,6 +61,7 @@ export default class ReportDetail extends Component {
         this.setState({contents: response});
       });
     });
+    console.log('디테일 리포트에서 navigation객체 = ',this.props.navigation);
   }
 
   //일/주/월 버튼 터치시 (선택할 수 있는 모달창 팝업)
@@ -83,33 +89,17 @@ export default class ReportDetail extends Component {
     let manager;
 
     if (this.state.viewType == '일')
-      manager = new WebServiceManager(
-        Constant.serviceURL +
-          '/GetDailyReport?user_id=' +
-          this.userID +
-          '&day=' +
-          this.date,
-      );
+      manager = new WebServiceManager(Constant.serviceURL +'/GetDailyReport?user_id=' + this.userID +'&day=' +this.date);
     else if (this.state.viewType == '주')
-      manager = new WebServiceManager(
-        Constant.serviceURL +
-          '/GetWeeklyReport?user_id=' +
-          this.userID +
-          '&day=' +
-          this.date,
-      );
+      manager = new WebServiceManager(Constant.serviceURL +'/GetWeeklyReport?user_id=' +this.userID +'&day=' +this.date);
     else
-      manager = new WebServiceManager(
-        Constant.serviceURL +
-          '/GetMonthlyReport?user_id=' +
-          this.userID +
-          '&day=' +
-          this.date,
-      );
+      manager = new WebServiceManager(Constant.serviceURL +'/GetMonthlyReport?user_id=' +this.userID +'&day=' +this.date);
 
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {
@@ -171,6 +161,8 @@ export default class ReportDetail extends Component {
               <DetailRenderItem
                 item={item}
                 index={index}
+                date={this.date}
+                navigation={this.props.navigation}
                 viewType={this.state.viewType}
               />
             )}

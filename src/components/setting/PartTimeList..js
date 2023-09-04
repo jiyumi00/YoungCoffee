@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import {FlatList, StyleSheet, View, Pressable} from 'react-native';
 
-import dayjs from 'dayjs';
-
 import Image from '../common/Image';
 // Constants
 import {THEME} from '../../constants/theme';
@@ -28,32 +26,36 @@ export default class PartTimeList extends Component {
     };
   }
 
-  componentDidMount() {
-    Constant.getUserInfo().then(response => {
-      this.userID = response.userID;
-      this.getDailyEmployees();
+  componentDidMount() {  
+    //본 화면이 포커스를 얻을 때 실행됨 (여기에서 부른 modal창이 닫히면 본 화면이 로딩됨으로 API새로 호출함)
+    this.props.navigation.addListener('focus',()=> {
+        this.getDailyEmployees();
     });
   }
 
   //직원 상세보기
-  goEmployeeDetail = item => {
+  goEmployeeDetail = (item) => {
     this.props.navigation.navigate('PartTimeDetail', {employeeID: item.id});
   };
 
   getDailyEmployees = () => {
-    this.callGetDailyEmployeesAPI().then(response => {
-      this.setState({contents: response});
+    Constant.getUserInfo().then((response)=> {
+      this.userID = response.userID;
+      this.callGetDailyEmployeesAPI().then(response => {
+        //console.log('직원 리스트 = ',response);
+        this.setState({contents: response});
+      });
     });
   };
 
   async callGetDailyEmployeesAPI() {
     console.log('userID = ', this.userID);
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/GetDailyEmployees?user_id=' + this.userID,
-    );
+    let manager = new WebServiceManager(Constant.serviceURL + '/GetDailyEmployees?user_id=' + this.userID);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {

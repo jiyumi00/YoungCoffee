@@ -21,7 +21,7 @@ import WebServiceManager from '../../utils/webservice_manager';
 const TimeIcon = require('../../assets/images/time_icon/time_icon.png');
 
 /* 해당점에서 근무하는 아르바이트 직원에 대한 근무일지 작성  */
-export default class QuickAddPartTime extends Component {
+export default class QuickAddWorkingTime extends Component {
   constructor(props) {
     super(props);
     this.navigation = this.props.navigation;
@@ -45,19 +45,20 @@ export default class QuickAddPartTime extends Component {
   filteredContents = data => {
     let list = data;
     list = list.filter(content => {
-      if (content.validate == 1) return true;
+      if (content.validate == 1 && content.pay!=0) 
+        return true;
     });
     return list;
   };
 
   async callGetDailyEmployeesAPI() {
-    console.log('userID = ', this.userID);
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/GetDailyEmployees?user_id=' + this.userID,
-    );
+    //console.log('userID = ', this.userID);
+    let manager = new WebServiceManager(Constant.serviceURL + '/GetDailyEmployees?user_id=' + this.userID);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {
@@ -107,7 +108,7 @@ class ListItem extends Component {
 
   onItemClicked = () => {
     this.props.navigation.goBack();
-    this.props.navigation.navigate('AddPartTimeModal', {data: this.item});
+    this.props.navigation.navigate('AddWorkingTimeModal', {data: this.item});
   };
 
   render() {

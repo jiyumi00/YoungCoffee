@@ -42,8 +42,10 @@ export default class FirstLogin extends Component {
   onValidForm = value => {
     this.setState(value, () => {
       let isValidForm = true;
-      if (this.state.password.trim().length < 4) isValidForm = false;
-      if (this.state.passwordConfirm.trim().length < 4) isValidForm = false;
+      if (this.state.password.trim().length < 4) 
+        isValidForm = false;
+      if (this.state.passwordConfirm.trim().length < 4) 
+        isValidForm = false;
       if (this.state.password != this.state.passwordConfirm)
         isValidForm = false;
       this.setState({isValidForm: isValidForm});
@@ -52,21 +54,15 @@ export default class FirstLogin extends Component {
 
   onSubmit = () => {
     this.callModifyUserAPI().then(response => {
-      console.log('modify user response = ', response);
-      if (response.success > 0) {
-        Alert.alert('정보수정', response.message);
+      //console.log('modify user response = ', response);
+      Alert.alert('정보수정', response.message);
+      if (response.success > 0) 
         this.props.navigation.navigate('SignIn');
-      } else {
-        Alert.alert('정보수정', response.message);
-      }
     });
   };
 
   async callModifyUserAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/ModifyUser',
-      'post',
-    );
+    let manager = new WebServiceManager(Constant.serviceURL + '/ModifyUser','post');
     const formData = {
       userID: this.userID,
       cmpNo: this.cmpNo,
@@ -76,8 +72,10 @@ export default class FirstLogin extends Component {
 
     manager.addFormData('data', formData);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {

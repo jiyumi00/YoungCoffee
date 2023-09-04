@@ -9,10 +9,13 @@ import SettlementHeader from './SettlementHeader';
 import Constant from '../../utils/constants';
 import WebServiceManager from '../../utils/webservice_manager';
 
+import dayjs from 'dayjs';
+
 // Constants
 import {THEME} from '../../constants/theme';
 import {settlementState} from '../../constants/settlement';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import { dateFormat } from '../../utils/DateFormat';
 
 // Images
 const CalendarIcon = require('../../assets/images/calendar/calendar.png');
@@ -31,10 +34,13 @@ export default class SettlementHome extends Component {
   }
 
   componentDidMount() {
-    Constant.getUserInfo().then(response => {
-      this.userID = response.userID;
-      this.getSettlementList();
-    });
+    this.props.navigation.addListener('focus',()=> {
+      console.log('마감리스트가 포커스를 얻음');
+      Constant.getUserInfo().then(response => {
+        this.userID = response.userID;
+        this.getSettlementList();
+      });
+    });    
   }
 
   async callGetSettlementListAPI() {
@@ -56,11 +62,13 @@ export default class SettlementHome extends Component {
   //리스트의 항목을 클릭시 (월 별 상세페이지오 이동 data는 다음...
   //SettlementDetail.js로 이동
   //[{"complete": 0, "date": "2023-07"}, {"complete": 0, "date": "2023-06"}, {"complete": 1, "date": "2023-05"}]
-  goSettlementDetail = item => {
+  goSettlementDetail = (item) => {
     this.props.navigation.navigate('SettlementDetails', {data: item});
   };
 
   render() {
+    const startDate = dayjs().subtract(5,"month").format("YYYY-MM");
+    const endDate = dayjs().format("YYYY-MM");
     return (
       <SafeAreaView
         style={homeStyles.container} edges={['right', 'bottom', 'left', 'top']}>
@@ -71,7 +79,7 @@ export default class SettlementHome extends Component {
           {/* List 확인에 필요한 Date */}
           <View style={homeStyles.selectedDate}>
             <Pressable style={homeStyles.selectedDateButton}>
-              <Text style={homeStyles.selectedDateText}>2023-02 ~ 2023-07</Text>
+              <Text style={homeStyles.selectedDateText}>{startDate} ~ {endDate}</Text>
               <Image source={CalendarIcon} />
             </Pressable>
           </View>

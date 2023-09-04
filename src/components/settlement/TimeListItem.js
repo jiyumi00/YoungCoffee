@@ -20,6 +20,7 @@ export default class TimeListItem extends Component {
     super(props);
     this.item = this.props.item;
     this.modifyModal = this.props.onPress;
+    //console.log('정산에서 타임 정보 = ',this.props.item);
   }
 
   render() {

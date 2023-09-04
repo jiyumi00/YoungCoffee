@@ -6,6 +6,7 @@ import {
   Pressable,
   Alert,
   StatusBar,
+  TouchableOpacity,
 } from 'react-native';
 import dayjs, {extend} from 'dayjs';
 
@@ -39,9 +40,6 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 const DeleteIcon = require('../../assets/images/delete_icon/delete_icon.png');
 const ModifyIcon = require('../../assets/images/modify_icon/modify_icon.png');
 
-//state:0 -> 현재 진행중인 연봉/시급
-//state:1 -> 지난 연봉/시급
-//state:2 -> ??
 
 /**
  * @title 유저 디테일 정보 스크린
@@ -62,7 +60,7 @@ export default class PartTimeDetail extends Component {
 
   componentDidMount() {
     this.goGetEmployeeDetail();
-  }
+  }  
 
   goGetEmployeeDetail = () => {
     this.callGetEmployeeDetailAPI().then(response => {
@@ -71,6 +69,12 @@ export default class PartTimeDetail extends Component {
     });
   };
 
+  //창 닫기
+  goBackListener=()=> {
+    this.props.navigation.goBack();
+  }
+
+  //직원상세정보 API
   async callGetEmployeeDetailAPI() {
     let manager = new WebServiceManager(Constant.serviceURL+'/GetEmployeeDetail?employee_id='+this.props.route.params.employeeID);
     let response = await manager.start();
@@ -80,11 +84,13 @@ export default class PartTimeDetail extends Component {
       Promise.reject(response);
   }
 
+
   render() {
     return (
       <>
         <View style={styles.container}>
           {/* Contents */}
+          {/*빈 오브젝트 이면*/}
           {Object.keys(this.state.contents).length != 0 && (
             <FlatList
               data={null}
@@ -94,15 +100,16 @@ export default class PartTimeDetail extends Component {
                 <BaseInfo
                   item={this.state.contents}
                   refreshListener={this.goGetEmployeeDetail}
-                />
+                  goBackListener={this.goBackListener}/>
               )}
               ListFooterComponent={() => (
-                <AdditionalInfo pays={this.state.contents.pays} />
+                <AdditionalInfo 
+                  pays={this.state.contents.validate!=0 ? this.state.contents.pays:[]}
+                  refreshListener={this.goGetEmployeeDetail} />
               )}
             />
           )}
         </View>
-        {/* TODO 여기 위치로 모달이 이동되어야함 */}
       </>
     );
   }
@@ -124,8 +131,10 @@ class BaseInfo extends Component {
   }
 
   componentDidMount() {
-    if (this.props.item.validate == 1) this.setState({isActivate: true});
-    else this.setState({isActivate: false});
+    if (this.props.item.validate == 1) 
+      this.setState({isActivate: true});
+    else 
+      this.setState({isActivate: false});
   }
 
   //폰번호 수정시 팝업
@@ -175,10 +184,38 @@ class BaseInfo extends Component {
     );
   };
 
-  cancelButtonListener = value => {
+  //직원 삭제 클릭시 
+  goRemoveDailyEmployeeAlert = () => {
+    Alert.alert(
+      '직원삭제',
+      this.props.item.name+' 직원을 삭제할까요?',
+      [
+        {text: '취소', onPress: () => {}},
+        {
+          text: '확인',
+          onPress: () => {
+            this.goRemoveDailyEmployee();
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+    return true;
+  };
+
+  goRemoveDailyEmployee=()=> {
+    console.log('삭제 버튼 클릭 = ',this.props.item.id);
+    this.callRemoveDailyEmployeeAPI().then((response)=> {
+      if(response.success==1)
+        this.props.goBackListener();
+    });
+  }
+
+  cancelButtonListener = (value) => {
     this.setState(value);
   };
 
+  //시급수정 API
   async callModifyDailyPayAPI(date, pay) {
     let manager = new WebServiceManager(Constant.serviceURL + '/ModifyDailyPay','post');
     const formData = {
@@ -189,12 +226,14 @@ class BaseInfo extends Component {
 
     manager.addFormData('data', formData);
     let response = await manager.start();
+
     if (response.ok) 
       return response.json();
     else 
       Promise.reject(response);
   }
 
+  //전화번호 또는 활성화 상태 수정 API
   async callModifyDailyEmployeeAPI(tel, validate) {
     let manager = new WebServiceManager(Constant.serviceURL + '/ModifyDailyEmployee','post');
     const formData = {
@@ -205,6 +244,18 @@ class BaseInfo extends Component {
 
     manager.addFormData('data', formData);
     let response = await manager.start();
+
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
+  }
+
+  //직원삭제 API
+  async callRemoveDailyEmployeeAPI() {
+    let manager = new WebServiceManager(Constant.serviceURL+'/RemoveDailyEmployee?employee_id='+this.props.item.id);
+    let response = await manager.start();
+
     if (response.ok) 
       return response.json();
     else 
@@ -234,6 +285,11 @@ class BaseInfo extends Component {
               <Text style={styles.userNameText} fontWeight={600}>
                 {name}
               </Text>
+              <TouchableOpacity
+                style={styles.modifyButton}
+                onPress={() => this.goRemoveDailyEmployeeAlert()}>
+                <Image source={DeleteIcon} style={styles.buttonIcon} />
+              </TouchableOpacity>
             </View>
 
             <View style={styles.closeButton}>
@@ -279,11 +335,12 @@ class BaseInfo extends Component {
               <>
                 <Text style={styles.valueText}>{amountFormat(pay)}</Text>
                 {this.state.isActivate && (
-                  <Pressable
+                  <TouchableOpacity
                     style={styles.modifyButton}
-                    onPress={() => this.editSalaryModal()}>
+                    onPress={() => this.editSalaryModal()}
+                    >
                     <Image source={ModifyIcon} style={styles.buttonIcon} />
-                  </Pressable>
+                  </TouchableOpacity>
                 )}
               </>
             }
@@ -341,6 +398,42 @@ class AdditionalInfo extends Component {
     super(props);
   }
 
+  goRemoveDailyPayAlert = (item) => {
+    Alert.alert(
+      '시급삭제',
+      item.startDate+'부터 적용되는 시급 '+item.pay+'원을 삭제할까요?',
+      [
+        {text: '취소', onPress: () => {}},
+        {
+          text: '확인',
+          onPress: () => {
+            this.removeDailyPay(item.id);
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+    return true;
+  };
+
+  removeDailyPay=(id)=> {  
+    console.log('삭제 합니다. = ',id);  
+    this.callRemoveDailyPayAPI(id).then((response)=> {
+      console.log("시급 삭제 response = ",response);
+      if(response.success==1)
+        this.props.refreshListener();
+    });
+  }
+
+  async callRemoveDailyPayAPI(id) {
+    let manager = new WebServiceManager(Constant.serviceURL + '/RemoveDailyPay?id='+id);
+    let response = await manager.start();
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
+  }
+
   render() {
     return (
       <View style={styles.salaryDetails}>
@@ -364,22 +457,33 @@ class AdditionalInfo extends Component {
     );
   }
 
-  renderItem = item => {
-    const endDate = item.endDate == '2100-12-31' ? '현재' : item.endDate;
+  renderItem = (item) => {
+    const endDate = item.endDate == '2100-12-31' ? '' : item.endDate;
     return (
       <View style={[styles.detailItem]}>
-        <View style={styles.detailItemHeader}>
-          <Text style={[styles.detailItemHeaderText]} fontWeight={500}>
-            {item.startDate} ~ {endDate}
-          </Text>
-        </View>
+        <View>
+          <View style={styles.detailItemHeader}>
+            <Text style={[styles.detailItemHeaderText]} fontWeight={500}>
+              {item.startDate} ~ {endDate}
+            </Text>
+          </View>
 
-        <View style={styles.detailAmount}>
-          <Text style={[styles.amountText]} fontWeight={600}>
-            {amountFormat(item.pay)}
-          </Text>
-          <Text style={[styles.unitText]}>원</Text>
+          <View style={styles.detailAmount}>
+            <Text style={[styles.amountText]} fontWeight={600}>
+              {amountFormat(item.pay)}
+            </Text>
+            <Text style={[styles.unitText]}>원</Text>
+          </View>
         </View>
+        
+        {item.erasable==1 && (
+            <TouchableOpacity
+              style={styles.modifyButton}
+              onPress={() => this.goRemoveDailyPayAlert(item)}
+              >
+              <Image source={DeleteIcon} style={styles.buttonIcon} />
+            </TouchableOpacity>
+          )}
       </View>
     );
   };
@@ -478,6 +582,9 @@ const styles = StyleSheet.create({
     color: THEME.COLOR.MAIN_COLOR,
   },
   detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 25,
     paddingVertical: 16,
   },
@@ -493,11 +600,13 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   modifyButton: {
-    marginLeft: 10,
+    //borderWidth: 1,
+    //marginLeft: 10,
+    padding: 4
   },
   buttonIcon: {
-    width: 14,
-    height: 14,
+    width: 16,
+    height: 16,
   },
   detailAmount: {
     flexDirection: 'row',

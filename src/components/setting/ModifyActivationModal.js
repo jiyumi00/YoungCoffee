@@ -46,12 +46,12 @@ export default class ModifyActivationModal extends Component {
   }
 
   cancelButtonClicked = () => {
-    console.log('cancel button clicked...');
+    //console.log('cancel button clicked...');
     this.props.cancelButtonListener();
   };
 
   okButtonClicked = () => {
-    console.log('ok button clicked...');
+    //console.log('ok button clicked...');
     this.setState({isActivate: !this.state.isActivate}, () => {
       this.props.okButtonListener(this.state.isActivate);
     });
@@ -68,7 +68,7 @@ export default class ModifyActivationModal extends Component {
               {this.props.name} 직원의 상태를
             </Text>
             <Text style={styles.messageText} fontWeight={500}>
-              {this.props.data ? (
+              {this.props.isActivate ? (
                 <Text style={styles.messagePointText} fontWeight={600}>
                   비활성화
                 </Text>

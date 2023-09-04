@@ -19,7 +19,7 @@ export default class CalendarHome extends Component {
     return (
       <SafeAreaView style={styles.container} edges={['right', 'left', 'top']}>
         <Insets>
-          <ScrollView contentContainerStyle={styles.contentContainer}>
+         
             {/* Header */}
             <View style={styles.header}>
               {/* Logo */}
@@ -28,11 +28,12 @@ export default class CalendarHome extends Component {
 
             {/* Calendar */}
             <Calendar navigation={this.props.navigation} />
-          </ScrollView>
+       
         </Insets>
       </SafeAreaView>
     );
   }
+
 }
 
 // Styles

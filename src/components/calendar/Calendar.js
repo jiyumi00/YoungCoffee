@@ -26,10 +26,14 @@ export default class Calendar extends Component {
   }
 
   componentDidMount() {
-    this.goWorkedList(this.state.date);
+    //this.goWorkedList(this.state.date);
+    this.props.navigation.addListener('focus',()=> {
+      //console.log('달력이 포커스를 얻음');
+      this.onRefresh();
+    }); 
   }
 
-  //카렌다를 아래로 쓸면...
+  //카렌다를 아래로 쓸면...(데이터 다시 불러옴)
   onRefresh = () => {
     this.setState({refreshing: true});
     this.goWorkedList(this.state.date);
@@ -41,7 +45,7 @@ export default class Calendar extends Component {
     Constant.getUserInfo().then((response) => {
         this.userID = response.userID;
         this.callGetWorkedListAPI(date).then((response) => {
-        this.setState({contents: response})
+          this.setState({contents: response})
         });
       });
   };
@@ -66,6 +70,7 @@ export default class Calendar extends Component {
     else 
       Promise.reject(response);
   }
+
 
   render() {
     return (
@@ -101,7 +106,6 @@ export default class Calendar extends Component {
             )}
             renderHeader={date => <CustomHeader date={date} />}
             //hideDayNames
-            // (희애) ios, android arrow 통일 시키기
             renderArrow={direction => <CustomArrow direction={direction} />}
           />
         </ScrollView>

@@ -3,6 +3,8 @@ import {
   StyleSheet,
   View,
   KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
   Pressable,
   TextInput,
   Alert,
@@ -14,7 +16,7 @@ import {
 import dayjs from 'dayjs';
 
 // Components
-import ModalContainer from '../../components/modal/ModalContainer';
+import ModalContainer2 from '../../components/modal/ModalContainer2';
 import Image from '../../components/common/Image';
 import DatePicker from '../../components/common/DatePicker';
 import Text from '../../components/common/Text';
@@ -28,7 +30,7 @@ import WebServiceManager from '../../utils/webservice_manager';
 import {THEME} from '../../constants/theme';
 
 // Utils
-import {numberKeyboardType, onUpdateNumbersOnly} from '../../utils/keyboard';
+import {numberKeyboardType, onUpdateNumbersOnly, keyboardBehavior} from '../../utils/keyboard';
 import {amountFormat} from '../../utils/AmountFormat';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -76,8 +78,8 @@ export default class ModifyWorkTimeModal extends Component {
     this.props.navigation.goBack();
   };
 
-  submit = () => {
-    if(dayjs(this.state.startTime).format('HH-mm') >= dayjs(this.state.endTime).format('HH-mm') || 
+  onSubmit = () => {
+    if(dayjs(this.state.startTime).format('HH-mm') > dayjs(this.state.endTime).format('HH-mm') || 
         parseInt(this.state.pay) <= 0 ||
         this.state.pay.toString().length == 0 || 
         isNaN(this.state.pay))
@@ -154,26 +156,23 @@ export default class ModifyWorkTimeModal extends Component {
 
     return (
       <>
-        <ModalContainer
+        <ModalContainer2
           bottomInset
           buttons={[
             {
               id: 0,
-              label: '확인',
-              onPress: this.submit,
-            },
-            {
-              id: 1,
               label: '취소',
               onPress: this.onClose,
             },
+            {
+              id: 1,
+              label: '확인',
+              onPress: this.onSubmit,
+            },
           ]}
           onClose={this.onClose}>
-          <KeyboardAvoidingView
-            style={styles.contents}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
-            behavior={Platform.OS === 'ios' ? 'padding' : ''}>
-            {/* Header */}
+          
+              {/* Header */}
             <View style={styles.header}>
               <Text style={styles.headerText} fontWeight={500}>
                 {this.employeeName} 님의
@@ -185,6 +184,8 @@ export default class ModifyWorkTimeModal extends Component {
                 을 수정하시겠습니까?
               </Text>
             </View>
+
+            <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss();}}>
             {/* Form */}
             <View style={styles.form}>
               {/* 출근 시간 */}
@@ -222,8 +223,10 @@ export default class ModifyWorkTimeModal extends Component {
                 }
               />
             </View>
-            {/* </View> */}
-          </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
+        
+             
+              {/* </View> */}
             {/* Date Picker */}
             {this.state.isDatePickerVisible && 
         
@@ -235,9 +238,7 @@ export default class ModifyWorkTimeModal extends Component {
           mode="time"
         />
       }
-        </ModalContainer>
-
-     
+       </ModalContainer2>
       </>
     );
   }

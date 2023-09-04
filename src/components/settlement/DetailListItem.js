@@ -42,38 +42,33 @@ export default class DetailListItem extends Component {
     this.complete = this.props.complete;
     this.date = this.props.date;
     this.userID = '';
+    this.confirmContents=this.props.confirmContents;
 
     this.state = {
       onToggle: false,
       detailState: this.props.detailState,
-    };
 
-    console.log('items = ', this.props.item);
-
-    this.state = {
       holidayContents: [],
-      timeContents: [],
+      timeContents: []
     };
   }
+
 
   //아르바이트 직원 이름에서 확장 터치 시(근무한 시간 리스트 , 주휴수당 리스트 API호출)
   onFolding = () => {
     this.setState({onToggle: !this.state.onToggle}, () => {
-      if (this.state.onToggle) {
-        Constant.getUserInfo().then(response => {
+      if (this.state.onToggle && this.complete==0) {
+        Constant.getUserInfo().then((response)=> {
           this.userID = response.userID;
-          console.log(
-            'parameter = ',
-            this.userID,
-            this.item.employee.id,
-            this.date,
-          );
           this.callGetHolidayListAPI().then(response => {
-            console.log('holiday list = ', response);
+            //console.log('holiday list = ', response);
             this.setState({holidayContents: response});
           });
+        });
+        Constant.getUserInfo().then((response)=> {
+          this.userID = response.userID;
           this.callGetWorkedTimeListAPI().then(response => {
-            console.log('time list = ', response);
+            //console.log('time list = ', response);
             this.setState({timeContents: response});
           });
         });
@@ -99,8 +94,17 @@ export default class DetailListItem extends Component {
       Promise.reject(response);
   }
 
+  async callGetConfirmListAPI() {
+    let manager = new WebServiceManager(Constant.serviceURL +'/confirm/GetConfirmList?user_id='+this.userID+'&day=' +this.date);
+    let response = await manager.start();
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
+  }
+
   onModifyListener = (item) => {
-    console.log('modify listener clicked....in Detail List Item', item, this.item.employee.name);
+    //console.log('modify listener clicked....in Detail List Item', item, this.item.employee.name);
     this.props.onModifyListener(item,this.item.employee.name);
   };
 
@@ -115,7 +119,15 @@ export default class DetailListItem extends Component {
           <View style={styles.userName}>
             <Text style={styles.userNameText} fontWeight={500}>
               {this.item.employee.name}
-            </Text>
+            </Text>     
+            
+            {this.complete==0 && (
+            <Text style={styles.userNameText}>
+              {this.confirmContents.length!=0 && this.confirmContents.map((item)=> {
+                if(item.id==this.item.employee.id)
+                  return item.status;
+              })}
+            </Text>)}       
           </View>
 
           <TouchableOpacity  onPress={this.onFolding} style={{flexDirection:'row'}} >
@@ -136,8 +148,8 @@ export default class DetailListItem extends Component {
         
         </View>
 
-        {/* 해당월에 미정산된 내역 (사람이름 리스트)에서 상세히 보기 화살표를 터치했을 경우 근무시간 목록과 주휴수당 목록 보기*/}
-        {this.state.onToggle && this.complete == 0 && (
+        {/*  미정산된 내역 (사람이름 리스트)에서 상세히 보기 화살표를 터치했을 경우 근무시간 목록과 주휴수당 목록 보기*/}
+        {this.state.onToggle && this.complete == 0 && this.state.timeContents.length!=0 && this.state.holidayContents.length!=0 &&(
           <HistoryListItem
             holidayContents={this.state.holidayContents}
             timeContents={this.state.timeContents}
@@ -178,7 +190,7 @@ class HistoryListItem extends Component {
   }
 
   onModifyWorkTime = item => {
-    console.log('일한 시간 수정 버튼 클릭', item);
+    //console.log('일한 시간 수정 버튼 클릭', item);
     this.props.onModifyListener(item);
   };
 
@@ -226,7 +238,7 @@ class CompletedListItem extends Component {
   }
 
   render() {
-    console.log('detaillistitem item : ',this.item)
+    //console.log('detaillistitem item : ',this.item)
     return (
       <View style={completedStyles.historyWrap}>
         <View style={completedStyles.history}>
@@ -309,6 +321,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     flex: 1,
+    flexDirection:'row',
   },
   userNameText: {
     fontSize: 17,

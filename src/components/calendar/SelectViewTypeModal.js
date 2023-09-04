@@ -4,6 +4,65 @@ import {THEME} from '../../constants/theme';
 import ModalContainer from '../../components/modal/ModalContainer';
 import Text from '../../components/common/Text';
 
+
+export default class SelectViewTypeModal extends Component {
+  constructor(props) {
+    super(props);
+    this.modalButtons = [
+      {
+        id: 1,
+        label: '취    소',
+        onPress: this.cancelButtonClicked,
+      }
+    ];
+  }
+
+  cancelButtonClicked = () => {
+    //console.log('cancel clicked...');
+    //this.props.navigation.goBack();
+    this.props.cancelButtonClicked();
+  };
+
+  okButtonClicked = item => {
+    //console.log('ok clicked....', item);
+    //this.props.navigation.goBack();
+    this.props.okButtonClicked(item);
+  };
+
+  render() {
+    return (
+      <ModalContainer
+        onClose={() => this.cancelButtonClicked()}
+        buttons={this.modalButtons}>
+        <View style={styles.contents}>
+          {/* List */}
+          <FlatList
+            data={['일', '주', '월']}
+            renderItem={({item, index}) => this.renderItem(item, index)}
+            contentContainerStyle={styles.list}
+            ItemSeparatorComponent={<View style={styles.separator} />}
+          />
+        </View>
+      </ModalContainer>
+    );
+  }
+
+  renderItem = (item, index) => {
+    //console.log('item data', item);
+    return (
+      <TouchableOpacity
+        onPress={() => this.okButtonClicked(item)}
+        activeOpacity={0.7}
+        style={styles.listItem}>
+        <Text style={styles.listItemText} key={index}>
+          {item}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+}
+
+
 const styles = StyleSheet.create({
   contents: {
     width: '100%',
@@ -46,69 +105,3 @@ const styles = StyleSheet.create({
     color: THEME.COLOR.MAIN_COLOR,
   },
 });
-
-export default class SelectViewTypeModal extends Component {
-  constructor(props) {
-    super(props);
-    this.modalButtons = [
-      {
-        id: 1,
-        label: '취    소',
-        onPress: this.cancelButtonClicked,
-      },
-      /*
-            {
-                id:2,
-                label: '확인',
-                onPress: () => {
-                    // TODO 변경 로직 작성    
-                    this.okButtonClicked();
-                },
-            }*/
-    ];
-  }
-
-  cancelButtonClicked = () => {
-    console.log('cancel clicked...');
-    //this.props.navigation.goBack();
-    this.props.cancelButtonClicked();
-  };
-
-  okButtonClicked = item => {
-    console.log('ok clicked....', item);
-    //this.props.navigation.goBack();
-    this.props.okButtonClicked(item);
-  };
-
-  render() {
-    return (
-      <ModalContainer
-        onClose={() => this.cancelButtonClicked()}
-        buttons={this.modalButtons}>
-        <View style={styles.contents}>
-          {/* List */}
-          <FlatList
-            data={['일', '주', '월']}
-            renderItem={({item, index}) => this.renderItem(item, index)}
-            contentContainerStyle={styles.list}
-            ItemSeparatorComponent={<View style={styles.separator} />}
-          />
-        </View>
-      </ModalContainer>
-    );
-  }
-
-  renderItem = (item, index) => {
-    console.log('item data', item);
-    return (
-      <TouchableOpacity
-        onPress={() => this.okButtonClicked(item)}
-        activeOpacity={0.7}
-        style={styles.listItem}>
-        <Text style={styles.listItemText} key={index}>
-          {item}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-}

@@ -1,13 +1,27 @@
-import {StyleSheet, View, FlatList} from 'react-native';
+import {StyleSheet, View, FlatList, TouchableOpacity} from 'react-native';
 import React, {Component} from 'react';
 import {THEME} from '../../constants/theme';
 import Text from '../common/Text';
+import Image from '../common/Image';
+
+const SettingIcon = require('../../assets/images/setting_icon/setting_icon.png');
 
 //근무한 시간량을 Bar형태로 보여주기
 export default class DailyBar extends Component {
   constructor(props) {
     super(props);
     console.log('progress in bar =', this.props.data);
+  }
+
+  modifyWorkTime=(item)=>{
+    const data={
+      id:item.id,
+      start:item.start,
+      end:item.end,
+      pay:item.pay,
+      startDate:this.props.date
+    }
+    this.props.navigation.navigate('ModifyWorkTimeModal', {data: data, employeeName:this.props.name});
   }
 
   render() {
@@ -50,6 +64,9 @@ export default class DailyBar extends Component {
             )}
           </View>
         </View>
+        <TouchableOpacity onPress={()=>this.modifyWorkTime(item)}>
+          <Image source={SettingIcon} style={styles.settingIcon} />
+        </TouchableOpacity>
       </>
     );
   };
@@ -91,5 +108,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: THEME.COLOR.WHITE_COLOR,
+  },
+  settingIcon: {
+    width: 17,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    height: 17,
   },
 });

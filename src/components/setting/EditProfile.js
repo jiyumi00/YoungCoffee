@@ -21,7 +21,6 @@ import WebServiceManager from '../../utils/webservice_manager';
 // Constants
 import {THEME} from '../../constants/theme';
 import {PASSWORD_INPUT} from '../../constants/input';
-import {isSearchBarAvailableForCurrentPlatform} from 'react-native-screens';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {keyboardBehavior} from '../../utils/keyboard';
 
@@ -44,31 +43,20 @@ export default class EditProfile extends Component {
   }
 
   onSubmit = () => {
-    console.log(
-      'data',
-      this.state.previousPassword,
-      this.state.password,
-      this.state.passwordConfirm,
-    );
+    //console.log('data',this.state.previousPassword,this.state.password,this.state.passwordConfirm);
     if (this.state.password != this.state.passwordConfirm) {
       Alert.alert('입력오류', '새로운 패스워드가 일치하지 않습니다');
     } else {
       this.callModifyUserAPI().then(response => {
-        if (response.success > 0) {
-          Alert.alert('정보수정', response.message);
+        Alert.alert('정보수정', response.message);
+        if (response.success > 0) 
           this.props.navigation.goBack();
-        } else {
-          Alert.alert('정보수정', response.message);
-        }
       });
     }
-  };
+  }
 
   async callModifyUserAPI() {
-    let manager = new WebServiceManager(
-      Constant.serviceURL + '/ModifyUser',
-      'post',
-    );
+    let manager = new WebServiceManager(Constant.serviceURL + '/ModifyUser','post');
     const formData = {
       userID: this.state.userInfo.userID,
       cmpNo: this.state.userInfo.cmpNo,
@@ -78,8 +66,11 @@ export default class EditProfile extends Component {
 
     manager.addFormData('data', formData);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {
@@ -87,7 +78,7 @@ export default class EditProfile extends Component {
     let displayedCmpNo = '';
     if (cmpNo != undefined) displayedCmpNo = Constant.transformCmpNo(cmpNo);
 
-    console.log('랜더링 in EditProfile = ', this.state.userInfo);
+    //console.log('랜더링 in EditProfile = ', this.state.userInfo);
     return (
       <KeyboardAvoidingView behavior={keyboardBehavior} style={{flex: 1}}>
         <SafeAreaView edges={['top']} style={styles.container}>

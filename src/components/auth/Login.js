@@ -54,7 +54,7 @@ export default class Login extends Component {
   }
 
   componentDidMount() {
-    console.log('componentDidMount');
+    //console.log('componentDidMount');
     Constant.getUserInfo().then(userInfo => {
       if (userInfo.userID != 0) this.props.navigation.navigate('MainTab');
     });
@@ -70,31 +70,31 @@ export default class Login extends Component {
     });
   };
 
-  //로그인 성공시 홈화면으로 가야하는데 MainTab으로 이동하면 에러 발생
+ 
   //MainTab
   onSubmit = () => {
-    console.log('로그인버튼 클릭')
+    //console.log('로그인버튼 클릭')
     this.callLoginAPI().then(response => {
-      console.log('userInfo=', response);
+      //console.log('userInfo=', response);
       if (response.userID == 0) {
         Alert.alert('아이디 또는 비밀번호를 확인해주세요', '');
-
         // 실패했을 경우에는 패스워드만 비워주기
         this.setState({
           password: '',
           isValidForm: false,
         });
-
-        return;
       } else if (response.userID != 0 && response.firstLogin == 0) {
         AsyncStorage.setItem('userInfo', JSON.stringify(response));
-        this.props.navigation.navigate('MainTab');
-        return;
-      } else if (response.userID != 0 && response.firstLogin == 1) {
-        // 성공했을 때만 비워줘야함
         this.setState({
           password: '',
           id: '',
+          isValidForm: false,
+        });
+        this.props.navigation.navigate('MainTab');
+      } else if (response.userID != 0 && response.firstLogin == 1) {
+        // 처음 로그인 시 id는 그대로 두고 passwd만 비워두기
+        this.setState({
+          password: '',
           isValidForm: false,
         });
         this.props.navigation.navigate('FirstLogin', {
@@ -116,8 +116,10 @@ export default class Login extends Component {
     };
     manager.addFormData('data', formData);
     let response = await manager.start();
-    if (response.ok) return response.json();
-    else Promise.reject(response);
+    if (response.ok) 
+      return response.json();
+    else 
+      Promise.reject(response);
   }
 
   render() {

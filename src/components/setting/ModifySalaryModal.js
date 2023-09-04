@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Alert} from 'react-native';
+import {StyleSheet, View, Alert, KeyboardAvoidingView, TouchableWithoutFeedback} from 'react-native';
 import dayjs from 'dayjs';
 
 // Components
-import ModalContainer from '../../components/modal/ModalContainer';
+import ModalContainer2 from '../../components/modal/ModalContainer2';
 import InputBox from '../../components/common/InputBox';
 import Input from '../../components/common/Input';
 import DateButton from '../../components/common/DateButton';
@@ -14,7 +14,7 @@ import {amountFormat} from '../../utils/AmountFormat';
 
 // Constants
 import {THEME} from '../../constants/theme';
-import {numberKeyboardType, onUpdateNumbersOnly} from '../../utils/keyboard';
+import {numberKeyboardType, onUpdateNumbersOnly, keyboardBehavior} from '../../utils/keyboard';
 
 /**
  * @title 직원 정보 수정 팝업
@@ -51,29 +51,25 @@ export default class ModifySalaryModal extends Component {
   }
 
   cancelButtonClicked = () => {
-    console.log('cancel button clicked...');
+    //console.log('cancel button clicked...');
     this.props.cancelButtonListener();
     //this.props.navigation.goBack();
   };
 
+  //확인 버튼 클릭시 (시급추가) 
   okButtonClicked = () => {
-    console.log('ok button clicked...');
-    console.log('this.state.date = ', this.state.date);
-    console.log('금액이 숫자가 아닙니다. = ', isNaN(this.state.pay));
-    if (
-      dayjs(this.state.date).format('YYYY-MM-DD') >=
-        dayjs().format('YYYY-MM-DD') &&
-      !isNaN(this.state.pay)
-    )
+    //금액은 0보다 크고 문자가 아니면(날짜는 과거 미래다 가능, 서버에서 날짜 겹칠 경우 오류반환)
+    if (!isNaN(this.state.pay) && parseInt(this.state.pay)>0)
       this.props.okButtonListener(this.state.date, this.state.pay);
     else
       Alert.alert(
         '입력오류',
-        '날짜는 오늘부터 가능하며, 금액은 숫자만 가능합니다',
+        '금액을 다시 입력하세요',
       );
   };
 
-  onSelectedListener = value => {
+  //날짜 선택시
+  onSelectedListener = (value) => {
     this.setState({date: value});
   };
 
@@ -86,7 +82,8 @@ export default class ModifySalaryModal extends Component {
     this.setState({isDatePickerModalVisible: true});
   };
 
-  onPayChanged = value => {
+  //모달창에서 시급 금액이 변경될 경우
+  onPayChanged = (value) => {
     this.setState({pay: parseInt(value), displayedPay: value});
   };
 
@@ -103,50 +100,51 @@ export default class ModifySalaryModal extends Component {
   render() {
     return (
       <>
-        <ModalContainer
+        <ModalContainer2
           onClose={this.cancelButtonClicked}
           buttons={this.modalButtons}>
-          <View style={styles.contents}>
-            <View style={styles.header}>
-              <Text style={styles.titleText} fontWeight={600}>
-                {this.props.title} 변경
-              </Text>
-            </View>
-            <InputBox
-              label="날짜"
-              input={
-                <DateButton
-                  key={this.state.date}
-                  defaultDate={this.state.date}
-                  onPress={() => this.openDatePickerModal()}
-                />
-              }
-            />
-            <InputBox
-              label="금액"
-              input={
-                <Input
-                  value={this.state.displayedPay.toString()}
-                  onChangeText={value => this.onPayChanged(value)}
-                  onBlur={this.numberToString}
-                  onFocus={this.stringToNumber}
-                  keyboardType={numberKeyboardType}
-                />
-              }
-            />
-          </View>
+              <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss();}}>
+                <View style={styles.contents}>
+                  <View style={styles.header}>
+                    <Text style={styles.titleText} fontWeight={600}>
+                      {this.props.title} 변경
+                    </Text>
+                  </View>
+                  <InputBox
+                    label="날짜"
+                    input={
+                      <DateButton
+                        key={this.state.date}
+                        defaultDate={this.state.date}
+                        onPress={() => this.openDatePickerModal()}
+                      />
+                    }
+                  />
+                  <InputBox
+                    label="금액"
+                    input={
+                      <Input
+                        value={this.state.displayedPay.toString()}
+                        onChangeText={value => this.onPayChanged(value)}
+                        onBlur={this.numberToString}
+                        onFocus={this.stringToNumber}
+                        keyboardType={numberKeyboardType}
+                      />
+                    }
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+         
           {this.state.isDatePickerModalVisible && (
-          <DatePicker
-            
-            defaultDate={new Date(this.state.date)}
-            onSelectedListener={value => this.onSelectedListener(value)}
-            mode="date"
-            onClose={this.onCloseModal}
-            style={styles.datePicker}
-          />
+            <DatePicker            
+              defaultDate={new Date(this.state.date)}
+              onSelectedListener={value => this.onSelectedListener(value)}
+              mode="date"
+              onClose={this.onCloseModal}
+              style={styles.datePicker}
+            />
         )}
-        </ModalContainer>
-        
+        </ModalContainer2>
       </>
     );
   }

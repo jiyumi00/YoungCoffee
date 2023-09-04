@@ -9,6 +9,14 @@ import Text from '../common/Text';
 //Utils
 import {amountFormat} from '../../utils/AmountFormat';
 
+
+
+/*********************************************** */
+//각 직원의 근무한 내역 로드되는 클래스
+//Caller 클래스인 ReportDetail에서 props로 넘어온 viewType에 따라 다른 클래스 로드
+//viewType=='일":DailyBar, =='주':WeeklyBar, =='월':MonthlyBar 클래스 로드
+/************************************************ */
+
 export default class DetailRenderItem extends Component {
   constructor(props) {
     super(props);
@@ -70,7 +78,7 @@ export default class DetailRenderItem extends Component {
 
         {/* 차트 */}
         <View style={styles.chart}>
-          {this.viewType == '일' && <DailyBar data={this.item.times} />}
+          {this.viewType == '일' && <DailyBar data={this.item.times} navigation={this.props.navigation} date={this.props.date} name={name}/>}
           {this.viewType == '주' && <WeeklyBar data={this.item.amounts} />}
           {this.viewType == '월' && <MonthlyBar data={this.item.amounts} />}
         </View>

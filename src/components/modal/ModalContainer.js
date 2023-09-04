@@ -28,44 +28,46 @@ export default class ModalContainer extends Component {
   render() {
     return (
       <Modal transparent={true} >
-      <View style={[styles.safeArea, StyleSheet.absoluteFill]}>
-        {/* Background */}
-        <Pressable
-          style={[StyleSheet.absoluteFill, styles.background]}
-          onPress={this.props.onClose}
-        />
-        
-        <SafeAreaView
-          edges={[this.props.bottomInset && 'bottom']}
-          mode="padding"
-          style={styles.container}>
-          <View style={styles.contents}>
-            {/* Children */}
-            {this.props.children}
-          </View>
-          <TouchableOpacity style={{}} onPress={this.props.onClose} />
+        <View style={[styles.safeArea, StyleSheet.absoluteFill]}>
+          {/* Background */}
+          <Pressable
+            style={[StyleSheet.absoluteFill, styles.background]}
+            onPress={this.props.onClose}
+          />
+          
+          <SafeAreaView
+            edges={[this.props.bottomInset && 'bottom']}
+            mode="padding"
+            style={styles.container}>
+              
+            <View style={styles.contents}>
+              {/* Children */}
+              {this.props.children}
+            </View>
+            <TouchableOpacity style={{}} onPress={this.props.onClose} />
 
-          {/* Button List */}
-          <View style={[styles.buttons]}>
-            {this.buttons?.map(button => (
-              <TouchableOpacity
-                key={button.id}
-                activeOpacity={0.8}
-                style={[styles.button, button.buttonStyle]}
-                onPress={button.onPress}>
-                <Text
-                  style={[styles.buttonText, button.buttonTextStyle]}
-                  fontWeight={600}>
-                  {button.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </SafeAreaView>
-        
-        {/* </ScrollView> */}
-      </View>
+            {/* Button List */}
+            <View style={[styles.buttons]}>
+              {this.buttons?.map(button => (
+                <TouchableOpacity
+                  key={button.id}
+                  activeOpacity={0.8}
+                  style={[styles.button, button.buttonStyle]}
+                  onPress={button.onPress}>
+                  <Text
+                    style={[styles.buttonText, button.buttonTextStyle]}
+                    fontWeight={600}>
+                    {button.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </SafeAreaView>
+          
+          {/* </ScrollView> */}
+        </View>
       </Modal>
+
     );
   }
 }
@@ -78,7 +80,7 @@ const styles = StyleSheet.create({
     flex:1,
     justifyContent: 'flex-end',
     //borderWidth:20,
-    flexBasis:0,
+    //flexBasis:0,
   },
   container: {
     backgroundColor: THEME.COLOR.WHITE_COLOR,

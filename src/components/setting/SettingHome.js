@@ -1,4 +1,4 @@
-import React, {useCallback, Component} from 'react';
+import React, {Component} from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -6,7 +6,6 @@ import {
   View,
   Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Constants
 import {THEME} from '../../constants/theme';
@@ -16,6 +15,7 @@ import Insets from '../../components/common/Insets';
 import Image from '../../components/common/Image';
 import Text from '../../components/common/Text';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Images
 const LinkIcon = require('../../assets/images/link_icon/link_icon.png');
@@ -91,7 +91,7 @@ export default class SettingHome extends Component {
         <View style={styles.settingItem}>
           <Text style={styles.tipText}>
             로그아웃하면 다음 로그인 시 {`\n`}아이디와 비밀번호를 다시
-            입력하셔야 합니다.
+            입력해야 합니다.
           </Text>
         </View>
         <View style={styles.logoutButtonView}>

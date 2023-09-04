@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
  */
 function BottomTabBar({state, descriptors, navigation}) {
   const onPressQuickAdd = () => {
-    navigation.navigate('QuickAddPartTime');
+    navigation.navigate('QuickAddWorkingTime');
   };
 
   return (
